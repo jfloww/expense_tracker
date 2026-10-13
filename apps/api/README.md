@@ -1,4 +1,13 @@
-# API foundation
+# Legacy Django API reference
+
+The product backend has switched to Java Spring Boot in
+[apps/backend](../backend/README.md); see the
+[transition plan](../../docs/backend-transition.md). This existing Django
+scaffold remains a working reference for ledger rules, provenance, constraints,
+and deterministic Python reporting. Do not add new product endpoints here or
+operate it as a second live ledger. The code documented below still uses
+individual user ownership. Household membership/account services now exist
+in Spring Boot; authenticated data APIs are next work.
 
 Python 3.12, Django 5.2 LTS, and Django REST framework 3.16. Dependency ranges
 stay within these compatible release series. [Django Python support](https://docs.djangoproject.com/en/5.2/releases/5.2/),
@@ -23,7 +32,7 @@ extraction, background worker, import/confirmation service, report endpoint, or
 AI provider is implemented. Issuer choices identify intended account sources;
 they do not mean Capital One, Chase, or Amex export formats are supported.
 
-## Local setup
+## Run the reference locally
 
 Run from the repository root:
 
@@ -35,10 +44,11 @@ python -m venv .venv
 ```
 
 The default development database is SQLite at `apps/api/db.sqlite3`. PostgreSQL
-is the intended public-product database; PostgreSQL migrations and deployment
-configuration still require verification before release.
+is the planned Spring Boot product database; these legacy Django settings and
+migrations do not configure or migrate the Java backend.
 
-Settings read process environment variables. `.env` files are not loaded automatically.
+Settings read process environment variables. `.env` files are not loaded
+automatically. The root `.env.example` currently documents this reference only.
 
 | Variable | Meaning |
 | --- | --- |
@@ -88,9 +98,11 @@ expenses minus confirmed refunds contribute to spending reports.
 Every ledger model has an owner foreign key. Related owners and source accounts
 are checked by `full_clean()`. Django does **not** call `full_clean()` automatically
 on `save()`, and cross-owner relationships are **not** enforced by database row
-security. The health endpoint returns no ledger data. Every future data endpoint
-must scope its queryset to the authenticated user, reject client-supplied owner
-IDs, validate nested relationships, and test cross-user access denial.
+security. The health endpoint returns no ledger data. Under the adopted household
+target, future Spring Boot endpoints verify the authenticated user's membership
+and role, scope records and nested relationships to that household, and test both shared
+member access and cross-household/revoked-member denial. Client-supplied owner or
+household IDs never establish authorization.
 
 ```powershell
 .\.venv\Scripts\python.exe apps/api/manage.py check
@@ -98,7 +110,8 @@ IDs, validate nested relationships, and test cross-user access denial.
 .\.venv\Scripts\python.exe apps/api/manage.py test tests
 ```
 
-Tests use synthetic records. They verify owner/account mismatches, staged review
+These commands check the legacy Django reference only. Tests use synthetic
+records. They verify owner/account mismatches, staged review
 prerequisites, duplicate-file scope, amount/flow database constraints, and the
 public read-only health endpoint. They are foundation checks, not an end-to-end
 authenticated import product test.

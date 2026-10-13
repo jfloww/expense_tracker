@@ -1,5 +1,6 @@
 # Local tools and dependencies
 .venv/
+.tools/
 __pycache__/
 *.py[cod]
 .pytest_cache/
@@ -8,6 +9,7 @@ node_modules/
 .expo/
 dist/
 build/
+target/
 
 # Secrets, financial records, and local databases
 .env
