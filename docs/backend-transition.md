@@ -3,22 +3,26 @@
 The user selected Java with Spring Boot on 2026-10-13. This replaces Django as
 the target product backend. Next.js/TypeScript, household roles, PDF-first
 extraction, CSV baseline, OpenAI-first experiments, and the feature/page plan
-continue to apply. The first Java foundation slice is now implemented.
+continue to apply. The first Java foundation slice is now implemented. The user
+subsequently requested removal of all Python code on the same date; the Django
+scaffold, reporting prototype, demo, and their dependencies have been removed.
 
 ## Current and target code
 
 | Location | Status and purpose |
 | --- | --- |
-| `apps/api` | Existing Django/Python reference: user-owned models, migration, health endpoint, reporting prototype and tests |
-| `tools/demo_spending_changes.py` | Existing synthetic reporting demo; behavior reference for the Java port |
 | `apps/backend` | Spring Boot 4.1.1 application: Flyway, identity/household/account services, public health, and PostgreSQL tests |
 | `apps/web` | Planned Next.js client using the Java REST API |
 | `apps/worker` | Planned launcher/process guidance; reuse Java backend modules for production jobs |
+| `docs/reporting-contract.md` | Calculation, coverage and synthetic acceptance requirements for future Java reporting |
 
-Existing Python code, migrations and databases remain intact. Java uses its own
-database and Flyway migrations. The Maven Wrapper and run/test commands are now
-available in [the backend README](../apps/backend/README.md). `.env.example`
-documents separate Java and Django settings; neither app loads it automatically.
+`apps/backend` is the sole current backend. Java reporting and the first offline
+Java extraction/evaluation runner remain pending. Removed source is recoverable
+from Git history at commit `75a0680`; any existing databases and private files
+remain intact. Java uses its own database and Flyway migrations. The Maven Wrapper
+and run/test commands are available in [the backend README](../apps/backend/README.md).
+`.env.example` documents Java settings and is not loaded automatically. Later
+training or serving experiments may choose separately scoped tooling as needed.
 
 ## Implementation baseline
 
@@ -57,9 +61,9 @@ for the first extraction experiment.
 | Reporting | Confirmed expenses minus posted-month refunds; exclude payments/transfers/income/adjustments; account coverage remains explicit |
 | Deletion | Tested ordered graph deletion with durable post-commit external cleanup; member departure preserves shared records |
 
-Python's arbitrary-precision arithmetic cannot be replaced with unchecked Java
-`long` addition. Port the synthetic reporting examples and their failure cases,
-using exact aggregate arithmetic. Money input requires actual canonical JSON
+Unchecked Java `long` addition cannot provide exact report aggregates. Implement
+[the reporting contract](reporting-contract.md) and its synthetic acceptance cases
+using `BigInteger` totals and deltas. Money input requires actual canonical JSON
 strings: disable or reject Jackson's number-to-string coercion for these fields.
 
 ## New schema and existing data
@@ -69,8 +73,8 @@ ownership starts in the first Flyway migration, so a new Java installation
 does not need an intermediate user-owned schema. Hibernate validates the schema;
 it does not update or recreate it automatically.
 
-Retain the old database while implementing the Java foundation. If there is
-data to carry over, inspect it and prepare an explicit copy with dry-run output:
+Retain any existing legacy database and private files after source removal. If
+there is data to carry over, inspect it and prepare an explicit copy with dry-run output:
 
 1. Audit related owners, constraints, supported currencies, ranges and source
    references. Fail on invalid links rather than guessing a household.
@@ -93,27 +97,28 @@ after new Java writes needs an explicit reconciliation plan, not a switch back
 to stale data. Executing a real cutover is a separate implementation task.
 
 This policy does not authorize resetting a database, deleting existing data,
-or migrating real credentials/files as part of a documentation edit.
+or migrating real credentials/files as part of source removal or a documentation edit.
 
 ## Build order and completion evidence
 
 Spring Boot setup, health, household/membership/account schema and services are
 implemented. Next add session/auth and account endpoints. Add the full
-statement/review/ledger schema and deterministic reporting port before the
+statement/review/ledger schema and deterministic Java reporting before the
 complete import workflow. See [next move](next-move.md) for acceptance criteria.
 
 Keep `/api/v1/` and the household-prefixed planned routes, ISO date formats,
 canonical string monetary fields, coverage and source references. Generate
-OpenAPI/TypeScript types from implemented controllers/DTOs, not the old Python
-models or this proposal. Pin a Boot-compatible OpenAPI tool when implementing it.
+OpenAPI/TypeScript types from implemented controllers/DTOs. This proposal is not
+a generated contract. Pin a Boot-compatible OpenAPI tool when implementing it.
 
 The first Java slice is verified by a reproducible Maven build, PostgreSQL
 migrations/constraint tests, household/account service isolation and last-owner
 concurrency checks. Full foundation completion additionally needs authenticated
-HTTP/CSRF tests, full graph deletion/rollback and reporting parity as those
-workflows are implemented. Passing the Python suite alone cannot verify this
-replacement.
+HTTP/CSRF tests, full graph deletion/rollback and reporting-contract acceptance
+tests as those workflows are implemented. Historical Python test results do not
+verify the Java implementation.
 
-Historical dated reviews remain snapshots of the Django scaffold. Adopted
-guidance lives in [architecture](architecture.md),
+Historical dated reviews remain snapshots of the code they inspected, including
+the removed Django scaffold. Their removed-source links can be inspected at
+commit `75a0680`. Adopted guidance lives in [architecture](architecture.md),
 [engineering conventions](engineering-conventions.md), and [roadmap](roadmap.md).

@@ -9,11 +9,11 @@ needs a working feature, a simpler baseline, measured results, and a write-up.
 
 ## Current status
 
-The repository contains a legacy Django scaffold with user-owned ledger models
-and a health endpoint, plus a Python deterministic spending-change prototype.
-The prototype calculates amounts using code and synthetic transactions; it does
-not call an AI model. The Java backend in `apps/backend` now implements the
-identity, household/account service, database, and public-health foundation.
+The Java backend in `apps/backend` implements the identity, household/account
+service, database, and public-health foundation. The Python/Django scaffold and
+spending-change prototype were removed at the user's request on 2026-10-13.
+Reporting requirements remain in [the reporting contract](reporting-contract.md);
+Java reporting and AI calls are not implemented yet.
 
 The adopted ownership model is a shared household with one ledger and initial
 owner/member roles. The household-scoped schema and service checks exist;
@@ -23,12 +23,11 @@ calls, classification, app agent harness, retrieval, and MCP server are planned.
 Coding-agent guidance already exists in [AGENTS.md](../AGENTS.md) and
 [CLAUDE.md](../CLAUDE.md).
 
-The backend transition preserves the Python prototype as a parity reference;
-production API, reporting, import services, and adapters will live in Java.
-Python may later support offline evaluation/training, but will not run a second
-live API or duplicate the production ledger. No Spring AI or MCP dependency is
-installed or required for the first extraction experiment. See
-[backend transition](backend-transition.md) for the stack and preservation policy.
+Production API, reporting, import services, adapters, and the first offline
+evaluation runner will live in Java. Later training or serving experiments may
+choose separately scoped tooling when their phases begin. No Spring AI or MCP
+dependency is installed or required for the first extraction experiment. See
+[backend transition](backend-transition.md) for the stack and data-preservation policy.
 
 ## First experiment: PDF extraction and evaluation
 
@@ -217,10 +216,10 @@ RAG is useful if the response needs relevant approved examples or user notes.
 It is not needed to compute the monthly totals. MCP would allow an external
 client to reach the same authorized reporting tools.
 
-The existing Python spending-change prototype already calculates category and
-merchant contributions without an agent. Port its deterministic behavior to Java
-with shared synthetic parity cases. An agent would add flexible investigation and
-natural-language interaction around that reporting foundation.
+Implement category and merchant contributions as deterministic Java calculations
+using [the reporting contract](reporting-contract.md) and its synthetic acceptance
+cases. An agent would add flexible investigation and natural-language interaction
+around that reporting foundation.
 
 ## Implementation order
 
@@ -228,11 +227,11 @@ Follow [roadmap.md](roadmap.md), with evaluation and tracing throughout:
 
 1. **Phase 0:** create the Java 21 / Spring Boot 4.x backend with Maven Wrapper,
    PostgreSQL/Flyway, household tenancy from its first schema, authorized
-   application/query services, and session/account APIs. Validate reporting
-   parity and household isolation with meaningful tests, including PostgreSQL
-   Testcontainers integration tests. An offline synthetic extraction/eval CLI
+   application/query services, and session/account APIs. Validate the reporting
+   contract and household isolation with meaningful tests, including PostgreSQL
+   Testcontainers integration tests. An offline synthetic Java extraction/eval CLI
    can run alongside the foundation; authenticated upload/review UI waits for
-   the APIs. Preserve the legacy scaffold and data rather than extending it.
+   the APIs. Removing the legacy source does not authorize deleting existing data.
 2. **Phase 1:** PDF extraction, a deterministic CSV baseline, staging, minimal
    Next.js review, versioned labels, and an evaluation runner. OpenAI first.
 3. **Phase 2:** compare providers/model sizes on the same held-out set; add Claude.

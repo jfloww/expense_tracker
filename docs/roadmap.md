@@ -23,9 +23,10 @@ Confirmed choices:
 
 The Java foundation at `apps/backend` now implements build/Flyway, identity,
 household/account services, and public health. Browser login, data endpoints,
-the web UI, and model calls remain pending. The legacy Django scaffold retains
-seven ledger models and a Python synthetic spending-change prototype. Preserve the old
-scaffold, database, and prototype as references. See the
+the web UI, reporting, and model calls remain pending. The user requested removal
+of all Python code on 2026-10-13; the Django scaffold and reporting prototype are
+removed. [The reporting contract](reporting-contract.md) preserves requirements
+and synthetic acceptance cases for Java. Existing legacy data remains intact. See the
 [backend transition](backend-transition.md) for the explicit data-copy policy.
 
 ## Immediate work
@@ -36,18 +37,19 @@ See [next-move.md](next-move.md) for the next coding task and acceptance criteri
 household roles and account services. See the backend README for verification.
 
 **Phase 0A.2:** extend the household-scoped ledger schema and authorized
-application/query services, then add ordered household deletion. Port deterministic
-reporting using synthetic parity cases from the Python prototype. Do not extend
-the legacy Django schema or reset/delete its database. If real legacy records
+application/query services, then add ordered household deletion. Implement deterministic
+Java reporting using [the reporting contract](reporting-contract.md) and its
+synthetic acceptance cases. Do not reset/delete any existing legacy database. If real legacy records
 need transfer, use a separately reviewed and validated copy into one household
 per legacy owner, preserving source links and exact amounts.
 
 **Phase 0B:** minimal Spring Security session authentication/CSRF and
 household/account endpoints with meaningful authorization tests, including
-PostgreSQL Testcontainers integration checks. A synthetic CLI extraction/eval
+PostgreSQL Testcontainers integration checks. A synthetic Java CLI extraction/eval
 experiment can begin alongside this work; authenticated upload and review
-depend on it. Java production workers/adapters reuse the same services; Python
-may remain for optional offline evaluation/training, not a second live ledger.
+depend on it. Java production workers/adapters reuse the same services. The first
+offline evaluation runner also uses Java and remains pending; later training or
+serving experiments may choose separately scoped tooling when needed.
 
 **Phase 1:** one PDF statement → extraction → staged review/correction → saved
 prediction and label versions → evaluation result. Build the dataset, baseline,
@@ -59,7 +61,7 @@ These are the adopted sequence, not completed features or a fixed schedule.
 
 | Phase | Deliverable | What we learn | Exit evidence |
 | --- | --- | --- | --- |
-| 0 | Spring Boot foundation, Flyway household schema, roles, services, deletion, session/account API | Modular monolith, tenancy, authorization, schema migrations, safe writes | Maven Wrapper build; PostgreSQL Testcontainers checks; shared members allowed, foreign/revoked members denied; full-chain deletion rollback and last-owner concurrency; Java/Python reporting parity; legacy data preserved |
+| 0 | Spring Boot foundation, Flyway household schema, roles, services, deletion, session/account API | Modular monolith, tenancy, authorization, schema migrations, safe writes | Maven Wrapper build; PostgreSQL Testcontainers checks; shared members allowed, foreign/revoked members denied; full-chain deletion rollback and last-owner concurrency; Java reporting-contract acceptance tests; legacy data preserved |
 | 1 | PDF extraction, CSV baseline, staging, review, versioned labels, eval runner | Multimodal input, structured outputs, validation, tracing | Reproducible per-document row/field scores, missing/extra rows, correction counts, failures, latency, and usage; source links and injection fixtures |
 | 2 | Provider and model comparison | Model selection and quality/cost/latency trade-offs | Same frozen dataset run on OpenAI and Claude plus smaller/larger candidates where available; comparison and selection rationale |
 | 3 | Household category suggestions: rules → retrieved examples → embeddings/reranking | Prompting, few-shot, RAG | Held-out comparison against rules-only and simpler retrieval; correction rate and retrieval quality |

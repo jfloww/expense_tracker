@@ -66,7 +66,8 @@ docker compose up -d postgres
 ```
 
 Without Docker, provision a PostgreSQL database/user separately and set the
-matching connection variables. Never point Flyway at the legacy Django database.
+matching connection variables. Use a dedicated application database; removing
+legacy source code does not authorize changing or deleting existing databases.
 Then start the application:
 
 ```powershell
@@ -131,6 +132,8 @@ workspace test cluster was used and stopped afterward. Docker Compose and
 Testcontainers execution were not exercised on this machine because Docker
 is not installed.
 
-The unchanged [Python reference](../api/README.md) and
-[transition policy](../../docs/backend-transition.md) remain available. The next
-slice is [session authentication and the account API](../../docs/next-move.md).
+The Python/Django scaffold and reporting prototype were removed on 2026-10-13.
+[The reporting contract](../../docs/reporting-contract.md) preserves their
+calculation requirements for the future Java implementation. The
+[transition policy](../../docs/backend-transition.md) preserves existing data.
+The next slice is [session authentication and the account API](../../docs/next-move.md).

@@ -2,8 +2,8 @@
 
 Next.js with TypeScript and the App Router is the intended client. No frontend
 dependencies, routes, or UI have been generated in this foundation task.
-The authoritative product API will be Java Spring Boot in apps/backend; the
-existing Django scaffold is a reference. Web authentication uses Spring
+The authoritative product API will be Java Spring Boot in apps/backend. The
+Python/Django scaffold was removed on 2026-10-13. Web authentication uses Spring
 Security sessions and CSRF protection behind the same origin.
 
 Plan features before routes using [features and pages](../../docs/features-and-pages.md).

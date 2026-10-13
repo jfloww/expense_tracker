@@ -7,7 +7,6 @@ move adopted decisions into `docs/`.
 | --- | --- | --- | --- | --- |
 | 4 | First bank | Capital One, Chase, Amex | Whichever you have real statements for. They are needed for a realistic golden set | Golden dataset |
 | 5 | Tracing and eval tooling | Build a minimal version yourself (JSONL/SQL), or use an existing tool (e.g. Langfuse, or something OpenTelemetry-based) | Build a minimal version in Phase 1, then adopt a tool in Phase 7 and compare the two | Phase 1 |
-| 8 | Where Python lives (added 2026-10-13) | (a) Java only. (b) Python for offline eval and dataset tooling only. (c) A separate Python AI service that the Java backend calls | **(b) now:** the extraction adapter and validation stay in Java, and the eval runner and dataset tools are Python, reading exported predictions and labels. Revisit (c) at Phase 3, where embeddings, reranking, fine-tuning and serving are mostly Python work | Phase 1 eval runner |
 
 ## Decided
 
@@ -22,11 +21,14 @@ product/architecture/AI docs:
 | 3 | Providers | OpenAI first; compare Claude later through a provider-neutral interface |
 | 6 | Project docs | Updated to the long-term AI engineering direction with early extraction, evaluation, and tracing |
 | 7 | Backend framework | Java with Spring Boot replaces Django as the target product backend; Next.js remains the frontend |
+| 8 | Current repository Python scope, decided 2026-10-13 | Remove all Python source, the Django scaffold, its dependencies, and the reporting demo; retain reporting requirements as documentation and build the first extraction/evaluation runner in Java. Later training or serving experiments may choose separately scoped tooling when needed |
 
 Initial implementation defaults use owner/member roles. `paid_by` remains an
 optional later attribution choice rather than a blocker for the household
 foundation. The Java implementation starts with household ownership in its
-first Flyway schema; the old Django code/data stays as reference. See
-[backend transition](../docs/backend-transition.md). These decisions describe
-the target; Java household services and AI extraction are not implemented yet.
-The dated review files remain snapshots.
+first Flyway schema. The Python/Django source was removed at the user's request;
+existing data is preserved under [backend transition](../docs/backend-transition.md).
+Java identity, household and account services are implemented; browser
+authentication, imports, reporting and AI extraction remain pending. The dated
+review files remain snapshots; removed source is available in Git history at
+commit `75a0680`.

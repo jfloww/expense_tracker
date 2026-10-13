@@ -10,8 +10,8 @@ Target: shared household ledger with owner/member roles; private accounts and
 settle-up later. The backend uses Java 21, Spring Boot 4.1.1,
 Maven Wrapper, Spring Data JPA, and PostgreSQL in apps/backend. Its foundation
 implements identity, household/account services, Flyway, and public health;
-browser login and data endpoints remain pending. apps/api is the Django/Python
-reporting reference; do not extend it as the product backend. Web uses Next.js;
+browser login and data endpoints remain pending. The Python scaffold and
+reporting prototype have been removed. Web uses Next.js;
 mobile reuses the Spring Boot API later. Capital One, Chase, and Amex are
 planned issuers. PDF extraction with OpenAI comes early, with a deterministic
 CSV baseline and Claude comparison later. No issuer parser or AI call exists yet.
@@ -19,8 +19,7 @@ CSV baseline and Claude comparison later. No issuer parser or AI call exists yet
 - Target authorization uses the actor's household membership and role. Never
   trust a client-supplied owner/household ID as authorization. Validate the scope
   of every related object, file, job, label, report, and retrieval result.
-- The legacy scaffold's model validation is not complete API authorization. Future
-  endpoints need same-household allowed and cross-household/revoked-member denial
+- Future endpoints need same-household allowed and cross-household/revoked-member denial
   tests. Protect the last owner; preserve shared records when a member leaves.
 - Organize the Spring Boot modular monolith by feature. Keep controllers thin;
   use authorized application services for writes, household-scoped query services
@@ -97,21 +96,7 @@ TEST_DATABASE_USERNAME and TEST_DATABASE_PASSWORD variables against a disposable
 PostgreSQL database. Every test JVM creates a fresh schema. No Docker/external
 database means verification fails; never silently skip or substitute H2.
 
-Existing Python reporting/reference checks from the workspace root:
-
-```powershell
-python -m unittest discover -s apps/api/tests -t apps/api -p test_spending_changes.py
-```
-
-Legacy Django scaffold checks, only when that reference code changes:
-
-```powershell
-.\.venv\Scripts\python.exe apps/api/manage.py check
-.\.venv\Scripts\python.exe apps/api/manage.py makemigrations --check --dry-run
-.\.venv\Scripts\python.exe apps/api/manage.py test tests
-```
-
 Report what works and what is reserved for later. A health endpoint and models
 do not constitute a finished authenticated product. .env.example documents
-separate Java and Django variables and is not automatically loaded. Keep the
-Python demo as an offline behavior reference, not a second live ledger service.
+Java variables and is not automatically loaded. Reporting is pending; use
+docs/reporting-contract.md for its required behavior and synthetic examples.

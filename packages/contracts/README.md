@@ -2,8 +2,8 @@
 
 The Spring Boot API is the authoritative contract for web and mobile. Once
 request/response DTOs and controllers exist, generate OpenAPI and TypeScript
-types here rather than hand-writing parallel financial models. Do not generate
-the product client from the legacy Django scaffold. Proposed routes are in
+types here rather than hand-writing parallel financial models. The Python/Django
+scaffold was removed on 2026-10-13. Proposed routes are in
 [the API plan](../../docs/api-plan.md).
 
 Conventions: date-only `YYYY-MM-DD`, month `YYYY-MM`, UTC instant timestamps with

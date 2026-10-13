@@ -8,8 +8,8 @@ for review. It will not confirm transactions automatically.
 
 Keep one business-logic implementation in the Java backend. Spring-managed
 services enforce the same household scope, domain validation, and transaction
-boundaries for HTTP and worker entry points. Do not import the legacy Django
-models or start a parallel Python ledger. Choose the queue as the
+boundaries for HTTP and worker entry points. The Python/Django scaffold was
+removed on 2026-10-13. Choose the queue as the
 first bounded PDF extraction workflow takes shape. A job needs household/account/
 statement scope, privacy-safe traces and evaluation metadata,
 idempotent stages, attempt limits, timeout handling, and sanitized failure data.

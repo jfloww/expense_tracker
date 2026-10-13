@@ -12,15 +12,19 @@ to end. The user confirmed:
 | Providers | OpenAI first; compare Claude later |
 | Backend | Java + Spring Boot; replaces the planned Django product backend |
 | Client | Next.js + TypeScript web client, using the shared Spring Boot API |
+| Current Python scope | Remove the Django scaffold and Python prototype; retain reporting requirements as documentation; first offline extraction/eval runner in Java |
 
 Tenancy, input and provider choices were confirmed after reviewing the Claude
 notes and attached GPT discussion. The user subsequently chose Java and Spring
 Boot. Preserve integer money, staging, provenance and deterministic reporting
 behavior while implementing the product backend in Java.
 
-The Spring Boot foundation is implemented at `apps/backend`; `apps/api` remains
-the unchanged Django/Python reference. Java uses a new PostgreSQL/Flyway schema
-and does not convert or reset the legacy database.
+The Spring Boot foundation is implemented at `apps/backend`, the sole backend.
+The Python/Django scaffold and reporting prototype were removed at the user's
+request on 2026-10-13. Java uses its own PostgreSQL/Flyway schema and does not
+convert or reset any existing legacy database. Reporting requirements remain in
+[the reporting contract](reporting-contract.md); Java reporting and the offline
+extraction/evaluation runner are not implemented yet.
 
 ## Implemented: Phase 0A.1 Spring Boot bootstrap and household/accounts
 
@@ -53,20 +57,20 @@ First-slice acceptance criteria:
   remove the last owner. Removing a member preserves the shared accounts.
 - Failed multi-record mutations roll back. Initial uniqueness/relationship
   constraints and locking are verified on PostgreSQL, not an in-memory substitute.
-- Existing Python code and databases remain intact. No full import/deletion or
-  reporting endpoint is claimed as implemented by the bootstrap slice.
+- Existing databases remain intact after source removal. No full import/deletion
+  or reporting endpoint is claimed as implemented by the bootstrap slice.
 
 Verification on 2026-10-13: Maven `verify` passed 22 unit and 31 PostgreSQL
 integration tests with no skips, using an isolated PostgreSQL 16.4 test cluster.
 Checks include a directly observed lock wait with membership revocation before
 the waiting write resumes. See [backend setup](../apps/backend/README.md).
 
-## Phase 0A.2: ledger graph, reporting parity and deletion
+## Phase 0A.2: ledger graph, reporting and deletion
 
 1. Add statement/staged-row/ledger/category/rule/job schema as those workflows
-   are implemented, all household-scoped. Port existing amount/flow/provenance
-   constraints and deterministic reporting behavior with parity fixtures. This
-   is a new Java schema, not a Django `makemigrations` task.
+   are implemented, all household-scoped. Implement the documented amount, flow
+   and provenance constraints plus [the reporting contract](reporting-contract.md)
+   with synthetic acceptance cases. Extend the Java schema with Flyway migrations.
 2. Implement ordered household deletion for the complete graph before that
    operation ships. All shared writes, including jobs, use its locking protocol.
    Define durable post-commit private-file/provider cleanup as storage is added;
@@ -89,9 +93,10 @@ Full-ledger completion criteria, separate from the immediate bootstrap:
   links and exact values; old data remains intact.
 - Full household deletion removes its related records, preserves another
   household, and rolls back on failure. Unauthorized deletion changes nothing.
-- Java reporting parity checks preserve the prototype's amount/flow/source and
-  coverage behavior, including values beyond safe JavaScript integers and aggregate
-  overflow cases. Python checks remain reference evidence, not Java validation.
+- Java reporting checks satisfy the reporting contract's amount, flow, source and
+  coverage requirements, including values beyond safe JavaScript integers and
+  aggregate overflow cases. The documented examples require Java tests before
+  reporting is considered implemented.
 - Test authorization, constraints, deletion rollback and concurrency on actual
   PostgreSQL; Testcontainers requires a working container runtime. A skipped
   database suite does not establish a completed foundation.
@@ -117,9 +122,9 @@ PDF -> provider extraction -> code normalization and validation -> staged rows
 
 Begin with a small paired synthetic PDF/CSV dataset and a fake provider so the
 workflow and scoring run without API credentials. The Java extraction interface
-and an offline evaluation runner can progress alongside phase 0A. Python may
-remain an optional offline fixture/scoring tool; production normalization and
-confirmation belong to Java services. Add bounded OpenAI execution after
+and an offline Java evaluation runner can progress alongside phase 0A. Production
+normalization and confirmation belong to Java services. Later training or serving
+experiments may choose separately scoped tooling. Add bounded OpenAI execution after
 credentials, processing consent, private artifact handling, and per-run limits
 are configured. Choosing
 OpenAI does not select a model or authorize sending arbitrary private files.

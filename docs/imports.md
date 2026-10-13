@@ -3,7 +3,7 @@
 ## Current status and first experiment
 
 Imports, file storage, provider calls, review UI, and confirmation services are
-planned. The legacy Django scaffold has user-owned models. The selected Java
+planned. The Python/Django scaffold was removed on 2026-10-13. The Java
 Spring Boot backend uses household scope and owner/member roles in its
 first PostgreSQL/Flyway schema and application services. Import services are
 not implemented yet. Every future import
@@ -13,7 +13,7 @@ settle-up, and receipts are later work. See [backend transition](backend-transit
 The first AI engineering experiment is PDF statement extraction with OpenAI
 behind a provider-neutral service interface. A deterministic CSV parser is the
 baseline where a comparable export is available; Claude comparison comes later.
-An offline synthetic extraction/eval CLI can progress alongside Phase 0's
+An offline synthetic Java extraction/eval CLI can progress alongside Phase 0's
 Spring Boot foundation. Authenticated uploads and Next.js review require the
 household foundation and session/account APIs first. See [roadmap.md](roadmap.md).
 
@@ -34,9 +34,9 @@ including redacted real examples, remain outside Git.
 
 Production parsers, provider/storage adapters, review, confirmation, and jobs
 use Java application services and the same household authorization as the API.
-A separate worker process reuses those modules; Python is reserved for the
-existing parity prototype or optional offline evaluation/training tools, not
-a second production import ledger.
+A separate worker process reuses those modules. The first offline evaluation
+runner also uses Java; separately scoped training or serving tooling can be
+chosen in later phases.
 
 ## Planned pipeline
 

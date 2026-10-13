@@ -5,11 +5,12 @@
 Help households turn statements from multiple banks into a trustworthy shared
 view of spending. This public, multi-user product is also a long-term AI
 engineering learning project: build working features and measure their quality,
-cost, and latency. The household is the target data scope. The current legacy
-Django scaffold uses individual user ownership; the selected Java Spring Boot
-backend will start with household scope in its first schema. Next.js remains the
-web client. This documentation change does not replace the working Python
-prototype or implement Java services. See [backend transition](backend-transition.md).
+cost, and latency. The household is the target data scope. The Java Spring Boot
+backend implements identity, household and account services with household scope
+in its first schema. Next.js remains the planned web client. The Python/Django
+scaffold and reporting prototype were removed on 2026-10-13; Java reporting,
+imports, and browser authentication remain pending. See
+[backend transition](backend-transition.md).
 
 The user confirmed a shared ledger with membership roles on 2026-10-13. Start
 with owner/member roles: both use the ledger; owners manage membership and
@@ -61,7 +62,8 @@ and one currency. Every category and merchant contribution carries source
 transaction IDs for both periods. Coverage is complete, partial, or unknown
 relative to the explicitly selected accounts; missing imports appear alongside
 the comparison. Refunds reduce spending in their posted month. Transfers,
-income, and card payments do not count as spending.
+income, and card payments do not count as spending. The exact requirements and
+synthetic acceptance cases live in [the reporting contract](reporting-contract.md).
 
 This proposal is a useful product direction, not a claim that no competitor
 offers it. Its value depends on making the supporting evidence easy to inspect.

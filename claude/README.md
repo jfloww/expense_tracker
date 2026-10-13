@@ -7,7 +7,7 @@ and nothing here counts as adopted until it is moved there.
 
 | File | Contents |
 | --- | --- |
-| [2026-10-13-project-review.md](2026-10-13-project-review.md) | Current state of the scaffold, checks that were run, strengths, issues |
+| [2026-10-13-project-review.md](2026-10-13-project-review.md) | Historical Django/Python scaffold review, checks that were run, strengths, issues |
 | [2026-10-13-ai-roadmap-assessment.md](2026-10-13-ai-roadmap-assessment.md) | Assessment of the GPT 10-phase AI plan and a revised phase outline |
 | [2026-10-13-backend-foundation-review.md](2026-10-13-backend-foundation-review.md) | Review of the Spring Boot Phase 0A.1 slice: rerun verification, 4 findings, process notes |
 | [open-decisions.md](open-decisions.md) | Decisions that block the next work, with recommendations |
@@ -19,8 +19,9 @@ Phase 0A.1 (Spring Boot identity, household and account services) checks out:
 passed with no skips. Before Phase 0B adds controllers, fix the 4 findings: the
 403/404 mismatch with the API plan, JSON leaving out null fields, primitive
 `active` on a PATCH, and the missing `.gitattributes`. Also: commit the work,
-start the offline Phase 1 AI loop, and decide where Python lives (open
-decision 8).
+start the offline Phase 1 AI loop. The user subsequently resolved decision 8
+by requesting removal of the Python scaffold and prototype; the first
+evaluation runner will use Java.
 
 ## Adopted after review — 2026-10-13
 
@@ -28,11 +29,13 @@ The user chose a shared household ledger with roles, PDF statements with a CSV
 baseline and receipts later, and OpenAI first with Claude comparison later.
 These choices now live in [docs/next-move.md](../docs/next-move.md) and
 [docs/roadmap.md](../docs/roadmap.md). The user subsequently selected Java and
-Spring Boot for the product backend. The next coding task is the Java foundation
-with household tenancy, validated services and ordered deletion; a synthetic
-extraction/eval experiment can progress in parallel. See
-[backend transition](../docs/backend-transition.md). The code remains the
-original user-owned Django/Python reference scaffold.
+Spring Boot for the product backend. Its identity, household and account
+foundation is implemented; session authentication and account HTTP endpoints
+are next. A synthetic Java extraction/eval experiment can progress in parallel.
+The user requested removal of all Python code on 2026-10-13. The Django scaffold
+and reporting prototype are removed; their source is recoverable from Git history
+at commit `75a0680`. See [backend transition](../docs/backend-transition.md) and
+[the reporting contract](../docs/reporting-contract.md).
 The following summary preserves the review's earlier context.
 
 ## Summary as of 2026-10-13
@@ -47,4 +50,6 @@ The following summary preserves the review's earlier context.
   review → corrections saved as labels → eval score).
 
 Dated files are snapshots of that day and are only edited to fix errors.
-`open-decisions.md` is updated as decisions are made.
+Their Python commands and links to removed source paths describe the historical
+scaffold; use commit `75a0680` to inspect that source. `open-decisions.md` is
+updated as decisions are made.

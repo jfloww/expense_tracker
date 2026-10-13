@@ -1,12 +1,13 @@
 # Architecture
 
 The backend target is now **Java with Spring Boot**, selected by the user on
-2026-10-13. Next.js remains the web client. The Java backend is implemented at
-`apps/backend`; the existing Django scaffold at `apps/api` remains a reference
-with seven user-owned models, a health endpoint, and a Python reporting prototype.
+2026-10-13. Next.js remains the planned web client. The sole backend is implemented
+at `apps/backend`. The Python/Django scaffold and reporting prototype were removed
+at the user's request on the same date.
 The first Java slice includes Flyway, identity registration, authorized household
 and account services, and public health. Browser authentication, data endpoints,
-the client, imports, and AI remain pending. The legacy database remains intact.
+the client, imports, reporting, and AI remain pending. Existing legacy data is
+preserved; removing source code does not authorize resetting its database.
 
 ## System boundaries
 
@@ -30,8 +31,9 @@ Use one backend and database. Keep ingestion and reports in the same codebase
 initially, with a separate process for long-running work. A modular monolith is
 sufficient; separate services would add deployment work before the import flow
 is proven. The Java worker reuses backend application modules rather than
-duplicating business rules. Python may support offline evaluation/training;
-it does not become a second live ledger API.
+duplicating business rules. The first offline extraction/evaluation runner also
+uses Java and remains pending. Later training or serving experiments may choose
+separately scoped tooling when those phases begin.
 
 Implementation follows [engineering conventions](engineering-conventions.md):
 thin controllers, authorized application services, household-scoped query
@@ -51,7 +53,7 @@ also supported through TEST_DATABASE_* configuration.
 
 Flyway owns the Java schema; Hibernate validates it rather than creating or
 updating it. Use PostgreSQL for local backend development and integration
-checks; the legacy SQLite database is only for the Python reference.
+checks. Any existing legacy database remains separate from the Java application.
 [Spring Boot database initialization](https://docs.spring.io/spring-boot/how-to/data-initialization.html).
 
 ## Target household and ledger model
@@ -107,8 +109,8 @@ bulk JPQL, or arbitrary entity mutation. Cross-household denial tests are requir
 for services and every data endpoint. Query services authorize before scoped
 reads and map results to DTOs; never expose JPA entities as API responses.
 
-The legacy Django models prepare provenance and review state. Parsing, atomic
-confirmation, automatic job retries, and file access control remain unimplemented.
+Statement provenance, staged review, parsing, atomic confirmation, automatic job
+retries, and file access control remain planned Java workflows.
 Household/account services implement the initial authorization boundary; callers
 must enter through these services rather than saving directly to repositories.
 
@@ -119,7 +121,8 @@ must enter through these services rather than saving directly to repositories.
   accepting other currencies with different minor-unit scales.
 - Java stored amounts use positive `long`/PostgreSQL `BIGINT` values. Use exact
   `BigInteger` report accumulation and deltas; any bounded `long` arithmetic
-  must detect overflow. A port must preserve Python's exact calculation behavior.
+  must detect overflow. Implement the exact calculations and synthetic acceptance
+  cases in [the reporting contract](reporting-contract.md).
 - Planned normalized API money values use canonical decimal integer strings,
   such as `"1250"` cents, including report totals and signed deltas. Keep integer
   arithmetic on the backend; client formatting must preserve exactness.
@@ -169,8 +172,8 @@ weaken foreign keys or enable broad JPA cascades without testing the full graph.
 All shared mutation paths use the same household locking protocol; multi-household
 operations acquire locks in stable ID order. Merely locking the deletion path
 does not stop a worker that ignores that protocol.
-Deletion tests must include all seven ledger models, rollback on failure, and
-preservation of another household's data.
+Deletion tests must include the complete related-data graph, rollback on failure,
+and preservation of another household's data.
 
 Private storage and provider-file deletion cannot participate in the database
 transaction. Persist cleanup tasks/outbox records that survive household deletion,
@@ -180,7 +183,7 @@ recreating deleted data. User-account offboarding is a separate operation:
 enforce last-owner rules, remove memberships, and clear optional audit user
 references while preserving other members' shared ledger.
 
-An offline CLI extraction evaluation can use synthetic documents before a full
+An offline Java CLI extraction evaluation can use synthetic documents before a full
 signup, recovery, or web UI is built. That exception does not waive authentication
 and household authorization for later network endpoints.
 

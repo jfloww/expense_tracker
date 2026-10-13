@@ -1,11 +1,11 @@
 # API plan
 
 Only `GET /api/v1/health/` is implemented as an HTTP endpoint in the Java backend
-at `apps/backend` (also retained in the legacy Django scaffold). The Java schema
+at `apps/backend`. The Python/Django scaffold was removed on 2026-10-13. The Java schema
 and authorized household/account services exist; browser login and data routes
 remain pending. Everything below remains a
 planned contract for the shared household target. Build household scope into
-the new PostgreSQL/Flyway schema rather than migrating Django models in place.
+the PostgreSQL/Flyway schema as each Java workflow is implemented.
 The framework change preserves these paths and wire rules; see
 [backend transition](backend-transition.md).
 
@@ -89,7 +89,8 @@ Spending-change responses should include previous/current totals, delta,
 category and merchant contributions, source transaction IDs for both periods,
 coverage status, and warnings. A source ID becomes a user-facing link through
 the authorized transaction endpoint. An optional AI summary must use these
-facts rather than supply new totals.
+facts rather than supply new totals. Calculation and coverage requirements live
+in [the reporting contract](reporting-contract.md).
 
 Write endpoints must call validated application services: authorize the actor,
 verify all foreign-key references within the selected household, enforce Bean

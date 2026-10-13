@@ -6,7 +6,7 @@ The user confirmed both original statement downloads and transaction CSV
 exports. Other page placement and priorities below are recommendations for
 discussion. Existing ownership, review, money, and reporting rules still apply.
 Next.js remains the web client; the selected backend is Java Spring Boot. The
-legacy Django/Python scaffold remains a reference while the new backend is built.
+Python/Django scaffold and reporting prototype were removed on 2026-10-13.
 
 ## 1. Define the capabilities
 
@@ -147,8 +147,8 @@ All downloads and export requests check current household access.
 ## 5. Make the signature feature visible
 
 Place **"Why did my spending change?"** on Dashboard. Start with two completed
-months and one currency, porting the existing Python deterministic reporting
-behavior to Java with parity checks.
+months and one currency, implementing [the reporting contract](reporting-contract.md)
+in Java with synthetic acceptance cases.
 
 Example: September spending is **$300 higher** than August. Dining contributes
 **+$180**, groceries **+$90**, utilities **+$60**, and transport **-$30**.
@@ -196,8 +196,8 @@ Add the Statements library
 and unified Transactions view around it, then the populated Dashboard with
 spending-change evidence. Include original download and CSV export in the usable
 core release. Complete signup/recovery/join before open public signup.
-This page plan does not change the next [Phase 0A task](next-move.md). Household
-scope starts in the new backend's first schema; existing legacy data is preserved
+This page plan does not change the next [session/account API task](next-move.md).
+Household scope exists in the backend's first schema; any existing legacy data is preserved
 under the [backend transition](backend-transition.md) policy.
 
 After the core loop works, consider batch upload, explicit category rules with
