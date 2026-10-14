@@ -21,9 +21,9 @@ Confirmed choices:
   repositories, and Spring Security sessions/CSRF are the selected backend
   conventions; Spring AI is optional later.
 
-The Java foundation at `apps/backend` now implements build/Flyway, identity,
-household/account services, and public health. Browser login, data endpoints,
-the web UI, reporting, and model calls remain pending. The user requested removal
+The Java backend at `backend` implements build/Flyway, authentication/MFA,
+persistent sessions, household/account APIs, and public health. The web UI,
+email verification/recovery/invitations, reporting, and model calls remain pending. The user requested removal
 of all Python code on 2026-10-13; the Django scaffold and reporting prototype are
 removed. [The reporting contract](reporting-contract.md) preserves requirements
 and synthetic acceptance cases for Java. Existing legacy data remains intact. See the
@@ -43,11 +43,14 @@ synthetic acceptance cases. Do not reset/delete any existing legacy database. If
 need transfer, use a separately reviewed and validated copy into one household
 per legacy owner, preserving source links and exact amounts.
 
-**Phase 0B:** minimal Spring Security session authentication/CSRF and
-household/account endpoints with meaningful authorization tests, including
-PostgreSQL Testcontainers integration checks. A synthetic Java CLI extraction/eval
-experiment can begin alongside this work; authenticated upload and review
-depend on it. Java production workers/adapters reuse the same services. The first
+**Phase 0B is implemented and verified:** Spring Security session
+authentication/CSRF, optional MFA, durable sessions/throttling and household/account
+endpoints. On 2026-10-14, Java 21 Maven `verify` passed 36 unit and 88 real
+PostgreSQL integration tests, with no failures, errors or skips. The run used
+an isolated PostgreSQL 16.4 database and mocked Google OIDC; Docker/Testcontainers
+and real Google were not exercised. See [security](security.md). Upload and review still depend on the
+ledger/import workflows. A synthetic Java CLI extraction/eval experiment can
+begin now. Java production workers/adapters reuse the same services. The first
 offline evaluation runner also uses Java and remains pending; later training or
 serving experiments may choose separately scoped tooling when needed.
 

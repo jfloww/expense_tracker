@@ -1,11 +1,10 @@
 # API plan
 
-Only `GET /api/v1/health/` is implemented as an HTTP endpoint in the Java backend
-at `apps/backend`. The Python/Django scaffold was removed on 2026-10-13. The Java schema
-and authorized household/account services exist; browser login and data routes
-remain pending. Everything below remains a
-planned contract for the shared household target. Build household scope into
-the PostgreSQL/Flyway schema as each Java workflow is implemented.
+The Java backend at `backend` implements health, browser authentication,
+MFA, optional Google login/linking, persistent sessions, and household/account endpoints. The
+Python/Django scaffold was removed on 2026-10-13. The tables distinguish
+implemented routes from planned ledger/import workflows. Build household scope
+into the PostgreSQL/Flyway schema as each Java workflow is implemented.
 The framework change preserves these paths and wire rules; see
 [backend transition](backend-transition.md).
 
@@ -14,8 +13,9 @@ verifies membership and role in the household selected by the route. A supplied
 household ID identifies the requested scope; it does not authorize access.
 Never accept a client-supplied owner or creator ID as authorization. Responses
 use stable IDs, ISO dates, decimal integer strings representing minor units,
-and explicit currencies. This wire representation is planned; the health
-endpoint has no money fields.
+and explicit currencies. Monetary wire fields remain planned because no
+implemented endpoint exposes transaction amounts or reports. Nullable response
+fields, including account `lastFour`, are present with explicit `null`.
 
 Normalized transaction amounts are positive strings (e.g. `"1250"` for USD
 $12.50). Report totals/deltas may be signed or zero; unresolved staged amounts
@@ -26,15 +26,42 @@ must declare monetary wire fields as strings, not int64 numbers. Dates distingui
 See [engineering conventions](engineering-conventions.md) for formatter and
 runtime-validation rules.
 
-| Method | Planned path | Purpose |
+| Method | Implemented path | Purpose |
 | --- | --- | --- |
-| POST | /auth/signup/ | Create a user |
-| POST | /auth/login/ | Establish browser session |
+| GET | /health/ | Public process liveness |
+| GET | /auth/csrf/ | Public CSRF bootstrap |
+| POST | /auth/signup/ | Create a user without automatic login |
+| POST | /auth/login/ | Establish session or return a pending MFA challenge |
+| POST | /auth/login/mfa/ | Complete pending challenge using TOTP/recovery code |
 | POST | /auth/logout/ | Revoke session |
 | GET | /auth/me/ | Current user |
+| POST | /auth/password/change/ | Password change with reauthentication |
+| POST | /auth/password/set/ | Initial password after recent Google authentication |
+| POST | /auth/oauth/google/link/ | Explicit reauthentication before linking Google identity |
+| GET | /auth/sessions/ | List own valid sessions using opaque public handles |
+| DELETE | /auth/sessions/{id}/ | Revoke own session |
+| POST | /auth/sessions/revoke-others/ | Reauthenticate and revoke other sessions |
+| GET | /auth/mfa/ | MFA status |
+| POST | /auth/mfa/setup/, /auth/mfa/confirm/ | Begin/confirm TOTP enrollment |
+| POST | /auth/mfa/disable/, /auth/mfa/recovery-codes/regenerate/ | Reauthenticate and update MFA |
+| GET, POST | /households/ | List joined households; create one with server-assigned owner membership |
+| GET | /households/{household_id}/ | View an accessible household |
+| GET, POST | /households/{household_id}/accounts/ | List/register shared accounts |
+| GET, PUT | /households/{household_id}/accounts/{id}/ | Inspect or fully replace account metadata |
+
+All mutations require CSRF, including public authentication entry points. See
+[security and client flow](security.md) for payloads, challenge/CSRF rotation,
+session lifetimes, optional Google authorization/callback paths, MFA and request
+limits. Google routes require the explicitly enabled/configured provider.
+Account PUT replaces metadata:
+`name`, `issuer`, `kind`, `lastFour`, `currency`, and `active`. `lastFour` is
+nullable; null or omission clears it. Other fields, including `active`, are
+required. Partial PATCH updates are not supported.
+
+| Method | Planned path | Purpose |
+| --- | --- | --- |
 | DELETE | /auth/me/ | User offboarding under the last-owner policy; preserve shared ledger |
-| GET, POST | /households/ | List joined households; create a household with server-assigned owner membership |
-| GET, PATCH, DELETE | /households/{household_id}/ | View; owner updates or deletes household |
+| PATCH, DELETE | /households/{household_id}/ | Owner updates or deletes household |
 | GET, POST | /households/{household_id}/memberships/ | View members; owner adds through a future join/invitation workflow |
 | PATCH, DELETE | /households/{household_id}/memberships/{id}/ | Owner changes role or removes a member |
 | DELETE | /households/{household_id}/memberships/me/ | Leave household subject to last-owner protection |
@@ -45,8 +72,7 @@ and member roles may read and write the shared ledger; viewer is deferred.
 
 | Method | Planned household-relative path | Purpose |
 | --- | --- | --- |
-| GET, POST | accounts/ | List and register shared accounts |
-| GET, PATCH, DELETE | accounts/{id}/ | Inspect/update account; delete only when protected references permit |
+| DELETE | accounts/{id}/ | Delete only when protected references permit |
 | GET, POST | statements/ | List private files; validate upload and create extraction job |
 | GET, DELETE | statements/{id}/ | Status, provenance, and service-controlled deletion |
 | GET | statements/{id}/rows/ | Paginated staged review rows |
@@ -74,9 +100,9 @@ owner. Enforce this inside a transaction with a household lock. Optional
 `created_by` references are audit fields, can be nulled on user offboarding, and
 never supply permission to a former member.
 
-Private accounts and settle-up between members are deferred. Signup, recovery,
-invitation delivery, and a complete browser auth flow are not prerequisites for
-the first synthetic CLI extraction evaluation. Network data endpoints must
+Private accounts and settle-up between members are deferred. Email verification,
+recovery and invitation delivery are pending and do not block the first synthetic
+CLI extraction evaluation. Network data endpoints must
 still have authenticated access and cross-household denial tests before they
 are complete.
 
@@ -130,7 +156,7 @@ The proposed routes do not authorize live provider calls. Provider processing
 needs explicit consent for the relevant data, validated household scope, and
 request/usage limits. See [AI-Tech](AI-Tech.md) and [the next build task](next-move.md).
 
-Generate an OpenAPI description from implemented Spring MVC controllers and
-DTOs when these routes exist. Generate TypeScript client types from that source.
-Keep this plan separate
+An OpenAPI generator and TypeScript client generation are not installed yet.
+Generate them from the implemented Spring MVC controllers and DTOs as the first
+client is built. Keep this plan separate
 from generated contracts so proposed routes never appear implemented.

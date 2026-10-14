@@ -190,13 +190,13 @@ including accounts that currently have no imported transactions.
 
 ## 7. Priority and implementation order
 
-Build the Spring Boot foundation and authenticated household/account services,
-then one complete upload -> processing -> review -> confirm workflow.
+The Spring Boot foundation and authenticated household/account API exist.
+Extend the ledger and build one complete upload -> processing -> review -> confirm workflow.
 Add the Statements library
 and unified Transactions view around it, then the populated Dashboard with
 spending-change evidence. Include original download and CSV export in the usable
 core release. Complete signup/recovery/join before open public signup.
-This page plan does not change the next [session/account API task](next-move.md).
+This page plan follows the next [ledger and extraction task](next-move.md).
 Household scope exists in the backend's first schema; any existing legacy data is preserved
 under the [backend transition](backend-transition.md) policy.
 

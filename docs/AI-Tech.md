@@ -9,15 +9,16 @@ needs a working feature, a simpler baseline, measured results, and a write-up.
 
 ## Current status
 
-The Java backend in `apps/backend` implements the identity, household/account
-service, database, and public-health foundation. The Python/Django scaffold and
+The Java backend in `backend` implements authentication/MFA, persistent
+sessions, household/account APIs, database migrations and public health. The Python/Django scaffold and
 spending-change prototype were removed at the user's request on 2026-10-13.
 Reporting requirements remain in [the reporting contract](reporting-contract.md);
 Java reporting and AI calls are not implemented yet.
 
 The adopted ownership model is a shared household with one ledger and initial
-owner/member roles. The household-scoped schema and service checks exist;
-authenticated HTTP APIs are next work. Private accounts and settle-up are later.
+owner/member roles. The household-scoped schema, service checks and authenticated
+account APIs exist; see [security](security.md) for browser/MFA/Google flows.
+Private accounts and settle-up are later.
 The web client, imports, provider
 calls, classification, app agent harness, retrieval, and MCP server are planned.
 Coding-agent guidance already exists in [AGENTS.md](../AGENTS.md) and

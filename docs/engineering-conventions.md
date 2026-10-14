@@ -2,8 +2,10 @@
 
 Updated on 2026-10-13 after the user selected Java and Spring Boot for the
 backend. Use these rules for new implementation and review. The Java backend
-at `apps/backend` implements the first foundation slice. Frontend and shared
-TypeScript helpers remain planned.
+at `backend` implements the foundation, browser authentication/MFA,
+persistent sessions, and household/account APIs. Frontend and shared
+TypeScript helpers remain planned. See [security](security.md) before changing
+credential, session or CSRF behavior.
 The Python/Django scaffold and reporting prototype were removed at the user's
 request on 2026-10-13. Reporting requirements remain in
 [the reporting contract](reporting-contract.md); Java reporting is pending.
@@ -57,14 +59,15 @@ Java worker/CLI -> application service -> provider/storage adapter
   such as `StatementExtractor`. Use fake implementations for offline experiments;
   keep provider SDK objects and transport errors inside the adapter.
 
-Package structure: identity, households, accounts, and shared are implemented;
-the diagram below is the target layout. AccountController/API packages and
-other feature packages are added when their workflows are built.
+Package structure: identity, mfa, households, accounts, and shared are implemented,
+including household/account controllers. The diagram below also includes planned
+ledger/import/report packages, added as their workflows are built.
 
 ```text
-apps/backend/src/main/java/com/expensetracker/
+backend/src/main/java/com/expensetracker/
   ExpenseTrackerApplication.java
   identity/
+  mfa/
   households/
   accounts/
     api/                 AccountController, request/response DTOs
@@ -78,8 +81,8 @@ apps/backend/src/main/java/com/expensetracker/
   imports/               Extraction orchestration and provider adapters
   shared/                Small error/configuration/value modules
 
-apps/backend/src/main/resources/db/migration/   Flyway SQL migrations
-apps/backend/src/test/                         Unit and PostgreSQL integration tests
+backend/src/main/resources/db/migration/   Flyway SQL migrations
+backend/src/test/                         Unit and PostgreSQL integration tests
 ```
 
 The application class sits above feature packages so component/entity scanning
@@ -118,7 +121,7 @@ survive household deletion. See [architecture](architecture.md) and
 Target layout; create files as their workflows are implemented:
 
 ```text
-apps/web/src/
+frontend/src/
   app/                         Route pages, layouts, loading and error states
   features/
     accounts/
@@ -171,9 +174,9 @@ control. Frontend role flags never authorize a backend operation.
 | --- | --- |
 | Date-only, month, timestamp and money display | `packages/shared` |
 | API DTO/schema | `packages/contracts`, generated from implemented API |
-| Browser/server HTTP transport and cookies | `apps/web/src/lib`, with server-only parts isolated |
-| Button, dialog, responsive table | `apps/web/src/components/ui` |
-| Import-review form rule or hook | `apps/web/src/features/imports` |
+| Browser/server HTTP transport and cookies | `frontend/src/lib`, with server-only parts isolated |
+| Button, dialog, responsive table | `frontend/src/components/ui` |
+| Import-review form rule or hook | `frontend/src/features/imports` |
 | Issuer-specific date/amount normalization | Backend import adapter |
 | Spending totals, refund treatment, confirmation rules | Backend services/pure reporting functions |
 | Household access, related-object checks, deletion | Backend application/query services |
@@ -313,8 +316,8 @@ Add meaningful checks with implementation:
 - Frontend workflow: source review, field-error feedback, repeated confirmation,
   and household changes without stale private data.
 
-The next implementation is [Phase 0B session and account API](next-move.md), on
-the existing Phase 0A.1 services. Implement shared formatters and their
+The session/account API is implemented; [next work](next-move.md) extends the
+ledger and extraction/evaluation loop. Implement shared formatters and their
 checks when the first Next.js workflow is introduced; configure strict
 TypeScript, lint import boundaries, and generate contracts as APIs become real.
 Do not create empty classes or placeholder layers to satisfy the pattern names.

@@ -3,7 +3,8 @@
 The user selected Java with Spring Boot on 2026-10-13. This replaces Django as
 the target product backend. Next.js/TypeScript, household roles, PDF-first
 extraction, CSV baseline, OpenAI-first experiments, and the feature/page plan
-continue to apply. The first Java foundation slice is now implemented. The user
+continue to apply. The Java foundation and authentication/MFA/account API are
+implemented. The user
 subsequently requested removal of all Python code on the same date; the Django
 scaffold, reporting prototype, demo, and their dependencies have been removed.
 
@@ -11,18 +12,22 @@ scaffold, reporting prototype, demo, and their dependencies have been removed.
 
 | Location | Status and purpose |
 | --- | --- |
-| `apps/backend` | Spring Boot 4.1.1 application: Flyway, identity/household/account services, public health, and PostgreSQL tests |
-| `apps/web` | Planned Next.js client using the Java REST API |
-| `apps/worker` | Planned launcher/process guidance; reuse Java backend modules for production jobs |
+| `backend` | Spring Boot 4.1.1: Flyway, authentication/MFA, persistent sessions, household/account APIs, health, and PostgreSQL tests |
+| `frontend` | Planned Next.js client using the Java REST API |
+| `worker` | Planned launcher/process guidance; reuse Java backend modules for production jobs |
 | `docs/reporting-contract.md` | Calculation, coverage and synthetic acceptance requirements for future Java reporting |
 
-`apps/backend` is the sole current backend. Java reporting and the first offline
+`backend` is the sole current backend. Java reporting and the first offline
 Java extraction/evaluation runner remain pending. Removed source is recoverable
 from Git history at commit `75a0680`; any existing databases and private files
 remain intact. Java uses its own database and Flyway migrations. The Maven Wrapper
-and run/test commands are available in [the backend README](../apps/backend/README.md).
+and run/test commands are available in [the backend README](../backend/README.md).
 `.env.example` documents Java settings and is not loaded automatically. Later
 training or serving experiments may choose separately scoped tooling as needed.
+The root layout now uses `backend/`, `frontend/`, `mobile/`, and `worker/`.
+The retained legacy SQLite file lives in ignored `data/private/legacy-db.sqlite3`;
+its contents were preserved during the move. Dated reviews retain the previous
+`apps/` paths as historical references.
 
 ## Implementation baseline
 
@@ -101,8 +106,9 @@ or migrating real credentials/files as part of source removal or a documentation
 
 ## Build order and completion evidence
 
-Spring Boot setup, health, household/membership/account schema and services are
-implemented. Next add session/auth and account endpoints. Add the full
+Spring Boot setup, health, authentication/MFA/session management, and
+household/account endpoints are implemented. See [security](security.md).
+Next add the full
 statement/review/ledger schema and deterministic Java reporting before the
 complete import workflow. See [next move](next-move.md) for acceptance criteria.
 
@@ -113,12 +119,17 @@ a generated contract. Pin a Boot-compatible OpenAPI tool when implementing it.
 
 The first Java slice is verified by a reproducible Maven build, PostgreSQL
 migrations/constraint tests, household/account service isolation and last-owner
-concurrency checks. Full foundation completion additionally needs authenticated
-HTTP/CSRF tests, full graph deletion/rollback and reporting-contract acceptance
-tests as those workflows are implemented. Historical Python test results do not
+concurrency checks. The API extension adds authenticated HTTP/CSRF, MFA,
+persistent-session and throttle tests. On 2026-10-14, Java 21 Maven `verify`
+passed 36 unit and 88 PostgreSQL 16.4 integration tests, with no failures,
+errors or skips. Verification used an isolated external database and a signed
+mock Google provider, not Docker/Testcontainers or real Google calls. Full
+foundation completion still needs full graph deletion/rollback and reporting
+acceptance tests as those workflows are implemented. Historical Python test results do not
 verify the Java implementation.
 
 Historical dated reviews remain snapshots of the code they inspected, including
-the removed Django scaffold. Their removed-source links can be inspected at
-commit `75a0680`. Adopted guidance lives in [architecture](architecture.md),
+the removed Django scaffold and former `apps/` layout. Removed Python source
+can be inspected at commit `75a0680`; old backend paths can be inspected in
+Git history before the root-directory move. Adopted guidance lives in [architecture](architecture.md),
 [engineering conventions](engineering-conventions.md), and [roadmap](roadmap.md).
