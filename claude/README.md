@@ -16,10 +16,15 @@ and nothing here counts as adopted until it is moved there.
 
 Phase 0A.1 (Spring Boot identity, household and account services) checks out:
 `mvnw verify` was rerun, and 22 unit plus 31 PostgreSQL integration tests
-passed with no skips. Before Phase 0B adds controllers, fix the 4 findings: the
-403/404 mismatch with the API plan, JSON leaving out null fields, primitive
-`active` on a PATCH, and the missing `.gitattributes`. Also: commit the work,
-start the offline Phase 1 AI loop. The user subsequently resolved decision 8
+passed with no skips. Phase 0B now addresses that review's four findings:
+inaccessible-household responses, explicit JSON nulls, required `active` on
+full PUT, and declared Maven wrapper line endings. Authentication/MFA, optional
+Google login/linking, persistent sessions and household/account endpoints are
+implemented. Extension verification on 2026-10-14 passed 36 unit and 88
+PostgreSQL 16.4 integration tests, with no failures, errors or skips; this used
+an isolated external database and signed mock Google provider. Docker/Testcontainers
+and real Google were not exercised. See [the implementation note](../codex/2026-10-14-security-backend.md).
+Start the offline Phase 1 AI loop next. The user subsequently resolved decision 8
 by requesting removal of the Python scaffold and prototype; the first
 evaluation runner will use Java.
 
@@ -30,8 +35,10 @@ baseline and receipts later, and OpenAI first with Claude comparison later.
 These choices now live in [docs/next-move.md](../docs/next-move.md) and
 [docs/roadmap.md](../docs/roadmap.md). The user subsequently selected Java and
 Spring Boot for the product backend. Its identity, household and account
-foundation is implemented; session authentication and account HTTP endpoints
-are next. A synthetic Java extraction/eval experiment can progress in parallel.
+foundation and authentication/account API are implemented; imports, reporting
+and the client remain pending. A synthetic Java extraction/eval experiment can
+progress now. See [security](../docs/security.md) for implemented login/MFA,
+Google configuration and session flows.
 The user requested removal of all Python code on 2026-10-13. The Django scaffold
 and reporting prototype are removed; their source is recoverable from Git history
 at commit `75a0680`. See [backend transition](../docs/backend-transition.md) and
@@ -53,3 +60,6 @@ Dated files are snapshots of that day and are only edited to fix errors.
 Their Python commands and links to removed source paths describe the historical
 scaffold; use commit `75a0680` to inspect that source. `open-decisions.md` is
 updated as decisions are made.
+Their `apps/backend`/`apps/web` paths also describe the pre-restructure layout;
+current code lives in root `backend/` and `frontend/`. Use Git history before
+the root-directory move when following dated backend-source links.

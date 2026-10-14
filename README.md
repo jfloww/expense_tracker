@@ -5,8 +5,8 @@ banks, built as a long-term AI engineering project. Upload statements, review
 extracted transactions, and understand where shared spending changed. The
 target product uses household memberships and roles, starts on the web, and
 adds a mobile app using the same API later. The backend uses **Java
-Spring Boot**. Its first slice implements identity, household roles, and account
-services. The Django scaffold and Python reporting prototype were removed on
+Spring Boot**. It implements browser authentication, optional Google login/MFA, household
+roles, and shared account APIs. The Django scaffold and Python reporting prototype were removed on
 2026-10-13; their source remains in Git history.
 
 Initial issuer targets: **Capital One, Chase, and Amex**. Their actual export
@@ -17,17 +17,19 @@ formats still need to be confirmed; no bank-specific parser is implemented.
 - A Java 21 / Spring Boot 4.1.1 backend with Maven Wrapper and PostgreSQL/Flyway.
 - Identity registration and authorized household/account application services,
   household locks, last-owner protection, and PostgreSQL integration tests.
-- A public `GET /api/v1/health/` in Spring Boot; other requests require authentication.
+- CSRF-protected signup/login/logout, password changes, persistent sessions,
+  TOTP/recovery-code MFA, optional Google login/linking, and authorized household/account HTTP endpoints.
+- A public `GET /api/v1/health/`; signup, login and CSRF bootstrap are also public.
 - A language-neutral reporting contract with synthetic spending-change examples
   for the future Java reporting implementation.
 - A documented import pipeline, API plan, feature options, and implementation
   milestones.
 - Reserved web, mobile, worker, shared-contract, and shared-utility directories.
 
-Login/signup, uploads, bank parsers, PDF extraction, review screens, dashboards,
-background jobs, AI calls, authenticated data endpoints, and deployment are planned
-work. Identity registration is currently an internal service, not a signup route.
-Deterministic reporting is specified but has not been implemented in Java.
+The web client, local-signup email verification/invitations/recovery, uploads, bank parsers,
+PDF extraction, review screens, dashboards, background jobs, AI calls, and
+deployment remain planned. Reporting and full ledger deletion are pending;
+authenticated account APIs do not constitute a finished expense tracker.
 
 Adopted on 2026-10-13: shared household ledger; PDF extraction with a CSV
 baseline; OpenAI first and Claude comparison later. Evaluation and tracing start
@@ -37,11 +39,12 @@ with the first AI feature. Private accounts, receipts, and settle-up come later.
 
 ```text
 expense-tracker/
-  apps/
-    backend/              Java Spring Boot product backend foundation
-    web/                  Next.js + TypeScript web client (planned)
-    mobile/               Expo mobile client (later)
-    worker/               Import worker entry point (planned)
+  backend/                Java Spring Boot product backend
+  frontend/               Next.js + TypeScript web client (planned)
+  mobile/                 Expo mobile client (later)
+  worker/                 Import worker entry point (planned)
+  codex/                  Dated implementation/review notes
+  claude/                 Dated independent reviews and current decisions
   packages/
     contracts/            API conventions; generated client types later
     shared/               Pure date/money/error helpers (planned)
@@ -54,6 +57,7 @@ expense-tracker/
     AI-Tech.md            Harness, RAG, MCP, and planned AI workflows
     imports.md            Issuer adapters, validation, review, deduplication
     api-plan.md           Intended authenticated API
+    security.md           Browser login, MFA, sessions, and local setup
     roadmap.md            Milestones with acceptance criteria
     next-move.md          Adopted decisions and immediate coding task
     reporting-contract.md Required reporting behavior and synthetic examples
@@ -64,8 +68,10 @@ expense-tracker/
 ## Run the product backend
 
 Use Java 21 and PostgreSQL. Set `SPRING_DATASOURCE_URL`,
-`SPRING_DATASOURCE_USERNAME`, and `SPRING_DATASOURCE_PASSWORD` in your shell,
-then run from `apps/backend`:
+`SPRING_DATASOURCE_USERNAME`, `SPRING_DATASOURCE_PASSWORD`, and a stable
+`MFA_ENCRYPTION_KEY` (Base64 encoding of 32 random bytes) in your shell. For
+local HTTP only, explicitly set `SESSION_COOKIE_SECURE=false`; production
+requires HTTPS and secure cookies. Then run from `backend`:
 
 ```powershell
 .\mvnw.cmd spring-boot:run
@@ -83,19 +89,23 @@ Verification needs Docker for Testcontainers, or the three
 test database is separate from the application database. See the backend README
 for Docker Compose, environment setup, and the current endpoint/service boundary.
 
-See [the backend README](apps/backend/README.md) and
+See [the backend README](backend/README.md) and
 [transition plan](docs/backend-transition.md) for implementation and data-transfer
 boundaries. Next.js and the API contract remain the client direction.
+See [security and client flow](docs/security.md) for CSRF bootstrap, MFA,
+session management, and encryption-key requirements.
 
 `.env.example` documents Spring Boot variables and is not automatically loaded.
 Set process environment variables before starting the backend. Any existing
 local legacy database is retained; copying its data is a separate workflow.
+The retained SQLite file is ignored at `data/private/legacy-db.sqlite3`.
+Dated reviews use the former `apps/backend`/`apps/web` paths; those snapshots
+refer to the layout before the root-directory move.
 
 ## Next milestone
 
-Implement Spring Security session login/logout/current-user and authorized
-household/account HTTP endpoints on the tested services. Extend the ledger graph,
-reporting, and safe deletion as separate workflows. Use
+Extend the ledger graph, reporting, and safe deletion, and build the first
+Next.js workflow against the implemented authentication/account APIs. Use
 [the reporting contract](docs/reporting-contract.md) for exact totals, refunds,
 source references, and coverage requirements. In parallel, a synthetic Java CLI
 can establish the extraction contract, CSV baseline, and evaluation scoring

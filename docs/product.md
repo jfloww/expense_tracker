@@ -6,10 +6,11 @@ Help households turn statements from multiple banks into a trustworthy shared
 view of spending. This public, multi-user product is also a long-term AI
 engineering learning project: build working features and measure their quality,
 cost, and latency. The household is the target data scope. The Java Spring Boot
-backend implements identity, household and account services with household scope
+backend implements authentication/MFA, sessions, and household/account APIs with household scope
 in its first schema. Next.js remains the planned web client. The Python/Django
 scaffold and reporting prototype were removed on 2026-10-13; Java reporting,
-imports, and browser authentication remain pending. See
+imports and the web client remain pending. Google login/linking is implemented
+but requires explicit configuration; see [security](security.md) and
 [backend transition](backend-transition.md).
 
 The user confirmed a shared ledger with membership roles on 2026-10-13. Start

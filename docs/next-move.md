@@ -19,7 +19,11 @@ notes and attached GPT discussion. The user subsequently chose Java and Spring
 Boot. Preserve integer money, staging, provenance and deterministic reporting
 behavior while implementing the product backend in Java.
 
-The Spring Boot foundation is implemented at `apps/backend`, the sole backend.
+The Spring Boot foundation and authentication/account API are implemented at
+`backend`, the sole backend. Browser signup/login/logout, optional MFA,
+password changes, persistent sessions and household/account HTTP endpoints
+exist; optional Google login/linking is configured separately. See
+[security and client flow](security.md).
 The Python/Django scaffold and reporting prototype were removed at the user's
 request on 2026-10-13. Java uses its own PostgreSQL/Flyway schema and does not
 convert or reset any existing legacy database. Reporting requirements remain in
@@ -32,14 +36,15 @@ The first slice implements the Java backend foundation. Follow
 [backend transition](backend-transition.md) and
 [engineering conventions](engineering-conventions.md). Use owner/member roles;
 both can use the ledger, and owners manage membership and household deletion.
-The implemented slice is build/database setup and identity/household/account
-services. Phase 0A.2 extends the ledger graph later. Phase 0B can add the first
-authenticated account API after 0A.1, alongside that extension; do not expose
-incomplete import or deletion operations.
+The bootstrap slice covers build/database setup and identity/household/account
+services. Phase 0B now adds their authenticated HTTP API and MFA/session
+management. Phase 0A.2 still extends the ledger graph; do not expose incomplete
+import or deletion operations.
 
-1. Added `apps/backend` with Java 21, Spring Boot 4.1.1, checksum-pinned Maven
+1. Added `backend` with Java 21, Spring Boot 4.1.1, checksum-pinned Maven
    Wrapper, PostgreSQL/Flyway, and public liveness at `GET /api/v1/health/`.
-   Other HTTP requests require authentication; CSRF protection remains enabled.
+   Public authentication entry points and CSRF bootstrap now accompany health;
+   other data requests require authentication. CSRF protection remains enabled.
 2. Added User, Household, Membership and Account in feature packages. Flyway
    starts with household ownership, unique memberships, and restrictive foreign
    keys. Current enabled identity and membership/role determine access.
@@ -63,7 +68,7 @@ First-slice acceptance criteria:
 Verification on 2026-10-13: Maven `verify` passed 22 unit and 31 PostgreSQL
 integration tests with no skips, using an isolated PostgreSQL 16.4 test cluster.
 Checks include a directly observed lock wait with membership revocation before
-the waiting write resumes. See [backend setup](../apps/backend/README.md).
+the waiting write resumes. See [backend setup](../backend/README.md).
 
 ## Phase 0A.2: ledger graph, reporting and deletion
 
@@ -101,15 +106,33 @@ Full-ledger completion criteria, separate from the immediate bootstrap:
   PostgreSQL; Testcontainers requires a working container runtime. A skipped
   database suite does not establish a completed foundation.
 
-## Next coding task: Phase 0B session authentication and account API
+## Implemented: Phase 0B authentication, MFA and account API
 
-Add Spring Security session login/logout/current-user and
-household/account controllers. Use secure HttpOnly cookies and CSRF protection,
-JSON API errors and current membership checks. Test real HTTP requests,
-cross-household IDs, revoked membership and CSRF. Generate OpenAPI from real
-controllers/DTOs; monetary fields remain canonical strings, not Java numeric JSON.
-Signup recovery, email invitations and a large settings UI can follow; they are
-not prerequisites for a synthetic extraction experiment.
+Implemented signup/login/logout/current-user, password changes, optional
+TOTP/recovery-code MFA, PostgreSQL-backed sessions and durable throttling.
+Optional Google OpenID Connect binds verified provider subjects, with explicit
+reauthenticated linking and the same MFA gate; new Google users can set an
+initial password after recent Google authentication.
+Household list/create/get and account list/create/get/PUT endpoints delegate to
+authorized services. Private responses bypass shared caches. Session fixation,
+CSRF rotation, user-version revocation and user/household locks protect their
+respective operations. See [security](security.md) and [API routes](api-plan.md).
+
+The four pre-0B review findings are addressed: inaccessible households return
+not-found, nullable JSON fields are explicit, account updates use full PUT with
+required `active`, and Maven wrapper line endings are declared in `.gitattributes`.
+Dated reviews remain historical snapshots. On 2026-10-14, Java 21 Maven
+`verify` passed 36 unit and 88 PostgreSQL 16.4 integration tests, with no
+failures, errors or skips. Google tests used a signed loopback mock provider;
+Docker/Testcontainers and real Google calls were not exercised. See
+[the implementation note](../codex/2026-10-14-security-backend.md). The earlier
+22-unit/31-integration result above describes only the bootstrap.
+
+Next implement Phase 0A.2 and the first extraction/evaluation experiment, then
+the Next.js authentication/account and source-review UI. OpenAPI/client
+generation, email verification/recovery/invitations, passkeys, full graph
+deletion and reporting remain pending. Monetary fields must remain canonical
+strings when ledger endpoints are added.
 
 ## First AI deliverable: Phase 1 extraction plus evaluation
 

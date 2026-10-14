@@ -2,11 +2,11 @@
 
 The backend target is now **Java with Spring Boot**, selected by the user on
 2026-10-13. Next.js remains the planned web client. The sole backend is implemented
-at `apps/backend`. The Python/Django scaffold and reporting prototype were removed
+at `backend`. The Python/Django scaffold and reporting prototype were removed
 at the user's request on the same date.
-The first Java slice includes Flyway, identity registration, authorized household
-and account services, and public health. Browser authentication, data endpoints,
-the client, imports, reporting, and AI remain pending. Existing legacy data is
+The backend includes Flyway, browser authentication, optional MFA, persistent
+sessions, authorized household/account APIs, and public health. The client,
+imports, reporting, email verification/recovery/invitations, and AI remain pending. Existing legacy data is
 preserved; removing source code does not authorize resetting its database.
 
 ## System boundaries
@@ -155,7 +155,10 @@ session-fixation protection, and refresh CSRF state; logout invalidates the
 session. Verify these behaviors on real HTTP requests rather than assuming
 that setting an authenticated principal alone establishes a browser session.
 [Spring Security session management](https://docs.spring.io/spring-security/reference/servlet/authentication/session-management.html).
-Signup, login, password recovery, and these routes are not implemented yet.
+Signup/login, password changes, MFA, session management, and household/account
+routes are implemented. Password recovery and email delivery remain pending.
+PostgreSQL persists sessions and authentication limits; user-version checks
+invalidate other sessions after credential changes. See [security](security.md).
 
 Every file will belong to a household and an account. Keep uploads in private
 storage, issue short-lived download access only after membership checks, and

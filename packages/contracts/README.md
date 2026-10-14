@@ -1,9 +1,10 @@
 # Shared contracts — planned
 
-The Spring Boot API is the authoritative contract for web and mobile. Once
-request/response DTOs and controllers exist, generate OpenAPI and TypeScript
-types here rather than hand-writing parallel financial models. The Python/Django
-scaffold was removed on 2026-10-13. Proposed routes are in
+The Spring Boot API is the authoritative contract for web and mobile.
+Authentication and household/account DTOs/controllers exist; OpenAPI and
+TypeScript generation remain pending. Generate types here from those endpoints
+rather than hand-writing parallel financial models. The Python/Django
+scaffold was removed on 2026-10-13. Implemented and planned routes are in
 [the API plan](../../docs/api-plan.md).
 
 Conventions: date-only `YYYY-MM-DD`, month `YYYY-MM`, UTC instant timestamps with

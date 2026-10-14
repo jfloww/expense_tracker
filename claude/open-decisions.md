@@ -28,7 +28,11 @@ optional later attribution choice rather than a blocker for the household
 foundation. The Java implementation starts with household ownership in its
 first Flyway schema. The Python/Django source was removed at the user's request;
 existing data is preserved under [backend transition](../docs/backend-transition.md).
-Java identity, household and account services are implemented; browser
-authentication, imports, reporting and AI extraction remain pending. The dated
+Java authentication/MFA, persistent sessions, and household/account APIs are
+implemented. Optional Google login/linking is implemented but disabled until
+configured; see [security](../docs/security.md). The client, imports, reporting
+and AI extraction remain pending. The dated
 review files remain snapshots; removed source is available in Git history at
 commit `75a0680`.
+Current code lives in root `backend/` and `frontend/`; `apps/` paths in dated
+reviews refer to the earlier layout preserved in Git history.

@@ -8,9 +8,9 @@ the adopted learning sequence.
 This is a public household expense tracker and long-term AI engineering project.
 Target: shared household ledger with owner/member roles; private accounts and
 settle-up later. The backend uses Java 21, Spring Boot 4.1.1,
-Maven Wrapper, Spring Data JPA, and PostgreSQL in apps/backend. Its foundation
-implements identity, household/account services, Flyway, and public health;
-browser login and data endpoints remain pending. The Python scaffold and
+Maven Wrapper, Spring Data JPA, and PostgreSQL in backend. Its foundation
+implements browser signup/login, persistent sessions, optional Google login/MFA, authorized
+household/account endpoints, Flyway, and public health. The Python scaffold and
 reporting prototype have been removed. Web uses Next.js;
 mobile reuses the Spring Boot API later. Capital One, Chase, and Amex are
 planned issuers. PDF extraction with OpenAI comes early, with a deterministic
@@ -40,6 +40,12 @@ CSV baseline and Claude comparison later. No issuer parser or AI call exists yet
 - Use Spring Security server-side sessions, secure HttpOnly cookies, and CSRF
   protection for the first same-origin web client. Do not disable CSRF to make
   browser mutations easier. Authentication does not replace household checks.
+- Read docs/security.md before changing authentication, MFA or sessions. Keep
+  user-version checks inside credential mutation locks; never expose reusable
+  cookie IDs as session-management handles. Preserve durable throttling, CSRF
+  rotation, and the required stable MFA encryption key.
+- Google identity binds by verified provider subject. Never auto-link existing
+  users by email; explicit linking requires password/factor reauthentication.
 - Organize Next.js by feature. Keep reusable web UI in components/ui, generated
   DTOs in packages/contracts, and pure date/money/error helpers in packages/shared.
   Shared modules must not import features, frameworks, secrets, or network code.
@@ -84,7 +90,7 @@ CSV baseline and Claude comparison later. No issuer parser or AI call exists yet
 - Every AI phase includes a runnable result, simpler baseline, measured outcomes,
   and short experiment note. Synthetic offline work must run without an API key.
 
-Verify the Spring Boot foundation from apps/backend with Java 21:
+Verify the Spring Boot foundation from backend with Java 21:
 
 ```powershell
 .\mvnw.cmd verify
@@ -96,7 +102,7 @@ TEST_DATABASE_USERNAME and TEST_DATABASE_PASSWORD variables against a disposable
 PostgreSQL database. Every test JVM creates a fresh schema. No Docker/external
 database means verification fails; never silently skip or substitute H2.
 
-Report what works and what is reserved for later. A health endpoint and models
-do not constitute a finished authenticated product. .env.example documents
+Report what works and what is reserved for later. Authentication/account APIs
+do not constitute a finished expense tracker. .env.example documents
 Java variables and is not automatically loaded. Reporting is pending; use
 docs/reporting-contract.md for its required behavior and synthetic examples.
