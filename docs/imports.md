@@ -1,29 +1,30 @@
 # Statement imports
 
-## Current status and first experiment
+## Scope and first experiment
 
-Imports, file storage, provider calls, review UI, and confirmation services are
-planned. The Python/Django scaffold was removed on 2026-10-13. The Java
-Spring Boot backend uses household scope and owner/member roles in its
-first PostgreSQL/Flyway schema and application services. Import services are
-not implemented yet. Every future import
-object must belong to an authorized household and account. Private accounts,
-settle-up, and receipts are later work. See [backend transition](backend-transition.md).
+This is the import contract. Current implementation and verification live in
+[next-move.md](next-move.md). Every product import object must belong to an
+authorized household and account; owner/member checks also apply to workers.
 
-The first AI engineering experiment is PDF statement extraction with OpenAI
-behind a provider-neutral service interface. A deterministic CSV parser is the
-baseline where a comparable export is available; Claude comparison comes later.
-An offline synthetic Java extraction/eval CLI can progress alongside Phase 0's
-Spring Boot foundation. Authenticated uploads and Next.js review require the
-household foundation and session/account APIs first. See [roadmap.md](roadmap.md).
+The [statement database design](statement-schema.md) proposes the entities,
+source/review history, scoped constraints, and confirmation lifecycle. Revisit
+this proposed design after testing the extraction contract; the offline
+experiment needs JSONL artifacts, not statement tables.
+
+Start with synthetic PDF/CSV fixtures, a fake PDF provider, a deterministic CSV
+baseline, and a scorer. This validates the contract without a database or live
+model. OpenAI is the first live provider behind the same interface; Claude
+comparison follows later. Authenticated upload/review must enforce the full
+household and object-scope contract. See [roadmap.md](roadmap.md).
 
 ## Issuer support plan
 
-| Issuer | CSV adapter | PDF adapter | Needed to begin |
-| --- | --- | --- | --- |
-| Capital One | Planned | Planned | Redacted export and account type |
-| Chase | Planned | Planned | Redacted export and account type |
-| Amex | Planned | Planned | Redacted export and account type |
+Target issuers are Capital One, Chase, and Amex. Requested inputs cover
+credit-card and bank/debit-card activity. Debit-card
+transactions belong to a `BANK_ACCOUNT`; credit-card statements belong to a
+`CREDIT_CARD` account. Share the schema across issuers, with adapters selected
+by issuer, account kind, and verified format/version. This does not establish
+support or product availability for every issuer/type combination.
 
 Do not infer column names or amount signs from the issuer's name. Account types
 and export versions can differ. No native bank format has been verified yet,

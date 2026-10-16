@@ -1,13 +1,10 @@
 # Architecture
 
-The backend target is now **Java with Spring Boot**, selected by the user on
-2026-10-13. Next.js remains the planned web client. The sole backend is implemented
-at `backend`. The Python/Django scaffold and reporting prototype were removed
-at the user's request on the same date.
-The backend includes Flyway, browser authentication, optional MFA, persistent
-sessions, authorized household/account APIs, and public health. The client,
-imports, reporting, email verification/recovery/invitations, and AI remain pending. Existing legacy data is
-preserved; removing source code does not authorize resetting its database.
+Use **Java with Spring Boot** in `backend`, PostgreSQL, and a Next.js web client.
+This document describes the target boundaries; current capabilities and
+verification live in [next-move.md](next-move.md). Preserve existing legacy data
+under [the transition policy](backend-transition.md); removing source does not
+authorize resetting its database.
 
 ## System boundaries
 
@@ -31,9 +28,10 @@ Use one backend and database. Keep ingestion and reports in the same codebase
 initially, with a separate process for long-running work. A modular monolith is
 sufficient; separate services would add deployment work before the import flow
 is proven. The Java worker reuses backend application modules rather than
-duplicating business rules. The first offline extraction/evaluation runner also
-uses Java and remains pending. Later training or serving experiments may choose
-separately scoped tooling when those phases begin.
+duplicating business rules. The standalone Java extraction/evaluation experiment
+tests the contract without Spring, persistence, or network calls. See
+[next-move.md](next-move.md) for its execution and evidence. Later training or
+serving experiments may choose separately scoped tooling when those phases begin.
 
 Implementation follows [engineering conventions](engineering-conventions.md):
 thin controllers, authorized application services, household-scoped query
@@ -69,9 +67,13 @@ access independently of membership.
 | Household | Shared ledger boundary |
 | Membership | Unique user/household relationship and owner or member role |
 | Account | Household, issuer, account kind, currency, display name |
-| Statement | Household, account, private file metadata/hash, period, review state |
-| ImportedTransaction | Household, staged extraction, original source data, proposed fields, review state |
-| Transaction | Household, normalized ledger entry, confirmed flag, source-row relationship |
+| Statement | Household, account, period, review/confirmation state |
+| StatementFile | Immutable private source metadata/hash for a statement |
+| ExtractionRun / PredictionRow | Versioned execution metadata and immutable extraction evidence |
+| ImportedTransaction | Staged review identity and source evidence, represented by `staged_rows` in the proposal |
+| ReviewLabelVersion | Append-only reviewed snapshots and inclusion/duplicate decisions |
+| Transaction | Household, normalized confirmed ledger entry |
+| TransactionSource | Exact reviewed source revision supporting a ledger entry |
 | Category | Household category definitions |
 | CategoryRule | Explicit household matching rule and destination category |
 | ProcessingJob | Household, statement, import stage, attempts, status, bounded failure details |
@@ -111,6 +113,9 @@ reads and map results to DTOs; never expose JPA entities as API responses.
 
 Statement provenance, staged review, parsing, atomic confirmation, automatic job
 retries, and file access control remain planned Java workflows.
+The [statement database proposal](statement-schema.md) expands these target
+entities into separate source files, immutable predictions, reviewed revisions,
+and confirmed ledger provenance for credit-card and bank statements.
 Household/account services implement the initial authorization boundary; callers
 must enter through these services rather than saving directly to repositories.
 
@@ -155,8 +160,6 @@ session-fixation protection, and refresh CSRF state; logout invalidates the
 session. Verify these behaviors on real HTTP requests rather than assuming
 that setting an authenticated principal alone establishes a browser session.
 [Spring Security session management](https://docs.spring.io/spring-security/reference/servlet/authentication/session-management.html).
-Signup/login, password changes, MFA, session management, and household/account
-routes are implemented. Password recovery and email delivery remain pending.
 PostgreSQL persists sessions and authentication limits; user-version checks
 invalidate other sessions after credential changes. See [security](security.md).
 
@@ -227,6 +230,5 @@ extracted amount is correct; validate semantics and handle refusals/incomplete
 responses. [OpenAI Structured Outputs](https://developers.openai.com/api/docs/guides/structured-outputs).
 
 MCP belongs at the edge as an adapter, with authentication and per-call scope
-checks. It must reuse backend reporting and household authorization rather than query
-unrestricted user data. No model provider, retrieval index, agent runtime, or
-MCP server is installed in this scaffold.
+checks. It must reuse backend reporting and household authorization rather than
+query unrestricted user data.

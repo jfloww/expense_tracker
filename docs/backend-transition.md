@@ -3,22 +3,21 @@
 The user selected Java with Spring Boot on 2026-10-13. This replaces Django as
 the target product backend. Next.js/TypeScript, household roles, PDF-first
 extraction, CSV baseline, OpenAI-first experiments, and the feature/page plan
-continue to apply. The Java foundation and authentication/MFA/account API are
-implemented. The user
+continue to apply. The user
 subsequently requested removal of all Python code on the same date; the Django
 scaffold, reporting prototype, demo, and their dependencies have been removed.
 
-## Current and target code
+## Layout and data preservation
 
-| Location | Status and purpose |
+| Location | Purpose |
 | --- | --- |
-| `backend` | Spring Boot 4.1.1: Flyway, authentication/MFA, persistent sessions, household/account APIs, health, and PostgreSQL tests |
-| `frontend` | Planned Next.js client using the Java REST API |
-| `worker` | Planned launcher/process guidance; reuse Java backend modules for production jobs |
+| `backend` | Spring Boot product backend and Java extraction experiments |
+| `frontend` | Next.js client using the Java REST API |
+| `worker` | Separate-process entry point when jobs require one; reuse Java backend modules |
 | `docs/reporting-contract.md` | Calculation, coverage and synthetic acceptance requirements for future Java reporting |
 
-`backend` is the sole current backend. Java reporting and the first offline
-Java extraction/evaluation runner remain pending. Removed source is recoverable
+Current implementation and verification live in [next-move.md](next-move.md).
+Removed source is recoverable
 from Git history at commit `75a0680`; any existing databases and private files
 remain intact. Java uses its own database and Flyway migrations. The Maven Wrapper
 and run/test commands are available in [the backend README](../backend/README.md).
@@ -104,13 +103,11 @@ to stale data. Executing a real cutover is a separate implementation task.
 This policy does not authorize resetting a database, deleting existing data,
 or migrating real credentials/files as part of source removal or a documentation edit.
 
-## Build order and completion evidence
+## Verification boundaries
 
-Spring Boot setup, health, authentication/MFA/session management, and
-household/account endpoints are implemented. See [security](security.md).
-Next add the full
-statement/review/ledger schema and deterministic Java reporting before the
-complete import workflow. See [next move](next-move.md) for acceptance criteria.
+Test the extraction contract in an offline Java experiment before extending
+the statement/review/ledger schema. The immediate task and its acceptance
+criteria live in [next-move.md](next-move.md).
 
 Keep `/api/v1/` and the household-prefixed planned routes, ISO date formats,
 canonical string monetary fields, coverage and source references. Generate
@@ -120,13 +117,10 @@ a generated contract. Pin a Boot-compatible OpenAPI tool when implementing it.
 The first Java slice is verified by a reproducible Maven build, PostgreSQL
 migrations/constraint tests, household/account service isolation and last-owner
 concurrency checks. The API extension adds authenticated HTTP/CSRF, MFA,
-persistent-session and throttle tests. On 2026-10-14, Java 21 Maven `verify`
-passed 36 unit and 88 PostgreSQL 16.4 integration tests, with no failures,
-errors or skips. Verification used an isolated external database and a signed
-mock Google provider, not Docker/Testcontainers or real Google calls. Full
-foundation completion still needs full graph deletion/rollback and reporting
-acceptance tests as those workflows are implemented. Historical Python test results do not
-verify the Java implementation.
+persistent-session and throttle tests. Full graph deletion/rollback and
+reporting require their own acceptance tests as those workflows are built.
+Historical Python test results do not verify the Java implementation; use
+[the recorded verification evidence](next-move.md).
 
 Historical dated reviews remain snapshots of the code they inspected, including
 the removed Django scaffold and former `apps/` layout. Removed Python source

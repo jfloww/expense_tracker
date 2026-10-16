@@ -7,28 +7,11 @@ the same API later. The project is also a long-term AI engineering learning
 project: each experiment
 needs a working feature, a simpler baseline, measured results, and a write-up.
 
-## Current status
-
-The Java backend in `backend` implements authentication/MFA, persistent
-sessions, household/account APIs, database migrations and public health. The Python/Django scaffold and
-spending-change prototype were removed at the user's request on 2026-10-13.
-Reporting requirements remain in [the reporting contract](reporting-contract.md);
-Java reporting and AI calls are not implemented yet.
-
-The adopted ownership model is a shared household with one ledger and initial
-owner/member roles. The household-scoped schema, service checks and authenticated
-account APIs exist; see [security](security.md) for browser/MFA/Google flows.
-Private accounts and settle-up are later.
-The web client, imports, provider
-calls, classification, app agent harness, retrieval, and MCP server are planned.
-Coding-agent guidance already exists in [AGENTS.md](../AGENTS.md) and
-[CLAUDE.md](../CLAUDE.md).
-
-Production API, reporting, import services, adapters, and the first offline
-evaluation runner will live in Java. Later training or serving experiments may
-choose separately scoped tooling when their phases begin. No Spring AI or MCP
-dependency is installed or required for the first extraction experiment. See
-[backend transition](backend-transition.md) for the stack and data-preservation policy.
+Use [next-move.md](next-move.md) for current implementation and verification,
+and [roadmap.md](roadmap.md) for the phase sequence. This document describes
+the intended roles of the technologies, not evidence that they are running.
+Production services and the first offline evaluation runner use Java; neither
+Spring AI nor an MCP dependency is required for the first extraction experiment.
 
 ## First experiment: PDF extraction and evaluation
 
@@ -36,6 +19,10 @@ Start with PDF statements, OpenAI first behind a provider-neutral extraction
 interface, and a deterministic CSV baseline where a comparable export exists.
 Receipts come later. The first issuer/layout is still unselected; Capital One,
 Chase, and Amex are targets, not implemented parsers.
+
+Test the contract first with synthetic PDFs/CSVs, a fake PDF provider, and a
+standalone Java scorer that writes JSONL. Fake results exercise validation and
+evaluation mechanics; they do not establish live model extraction quality.
 
 The first loop is PDF input -> schema-constrained extraction -> code validation
 and staging -> review/correction -> versioned labels -> evaluation. This is a
@@ -221,29 +208,6 @@ Implement category and merchant contributions as deterministic Java calculations
 using [the reporting contract](reporting-contract.md) and its synthetic acceptance
 cases. An agent would add flexible investigation and natural-language interaction
 around that reporting foundation.
-
-## Implementation order
-
-Follow [roadmap.md](roadmap.md), with evaluation and tracing throughout:
-
-1. **Phase 0:** create the Java 21 / Spring Boot 4.x backend with Maven Wrapper,
-   PostgreSQL/Flyway, household tenancy from its first schema, authorized
-   application/query services, and session/account APIs. Validate the reporting
-   contract and household isolation with meaningful tests, including PostgreSQL
-   Testcontainers integration tests. An offline synthetic Java extraction/eval CLI
-   can run alongside the foundation; authenticated upload/review UI waits for
-   the APIs. Removing the legacy source does not authorize deleting existing data.
-2. **Phase 1:** PDF extraction, a deterministic CSV baseline, staging, minimal
-   Next.js review, versioned labels, and an evaluation runner. OpenAI first.
-3. **Phase 2:** compare providers/model sizes on the same held-out set; add Claude.
-4. **Phase 3:** personalized category suggestions, starting with rules and
-   database retrieval before embeddings/reranking. **Phase 4:** evaluated search.
-5. **Phase 5:** handwritten analysis harness, then an SDK comparison around
-   trusted reporting tools. **Phase 6:** authenticated read-only MCP adapter.
-6. **Phase 7:** production operations. **Phase 8:** classifier and optional
-   fine-tuning against baselines. **Phase 9:** measured self-hosted serving.
-   **Phase 10:** a multi-agent experiment, including a documented null result if
-   it does not improve the single-agent baseline.
 
 AI suggests labels and explains facts; code calculates money. Preserve source
 references, require explicit approval to create category rules, and keep

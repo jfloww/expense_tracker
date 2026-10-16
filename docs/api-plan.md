@@ -1,10 +1,9 @@
 # API plan
 
-The Java backend at `backend` implements health, browser authentication,
-MFA, optional Google login/linking, persistent sessions, and household/account endpoints. The
-Python/Django scaffold was removed on 2026-10-13. The tables distinguish
-implemented routes from planned ledger/import workflows. Build household scope
-into the PostgreSQL/Flyway schema as each Java workflow is implemented.
+The tables distinguish browser/account routes from planned ledger/import
+workflows. Current implementation and verification live in
+[next-move.md](next-move.md). Build household scope into the PostgreSQL/Flyway
+schema as each Java workflow is implemented.
 The framework change preserves these paths and wire rules; see
 [backend transition](backend-transition.md).
 

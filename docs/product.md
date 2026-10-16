@@ -5,13 +5,10 @@
 Help households turn statements from multiple banks into a trustworthy shared
 view of spending. This public, multi-user product is also a long-term AI
 engineering learning project: build working features and measure their quality,
-cost, and latency. The household is the target data scope. The Java Spring Boot
-backend implements authentication/MFA, sessions, and household/account APIs with household scope
-in its first schema. Next.js remains the planned web client. The Python/Django
-scaffold and reporting prototype were removed on 2026-10-13; Java reporting,
-imports and the web client remain pending. Google login/linking is implemented
-but requires explicit configuration; see [security](security.md) and
-[backend transition](backend-transition.md).
+cost, and latency. The household is the target data scope, with a Java Spring
+Boot backend and Next.js web client. See [next-move.md](next-move.md) for current
+implementation and verification; the capabilities below describe the target
+product.
 
 The user confirmed a shared ledger with membership roles on 2026-10-13. Start
 with owner/member roles: both use the ledger; owners manage membership and
