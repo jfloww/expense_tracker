@@ -1,14 +1,9 @@
 # Engineering conventions
 
-Updated on 2026-10-13 after the user selected Java and Spring Boot for the
-backend. Use these rules for new implementation and review. The Java backend
-at `backend` implements the foundation, browser authentication/MFA,
-persistent sessions, and household/account APIs. Frontend and shared
-TypeScript helpers remain planned. See [security](security.md) before changing
-credential, session or CSRF behavior.
-The Python/Django scaffold and reporting prototype were removed at the user's
-request on 2026-10-13. Reporting requirements remain in
-[the reporting contract](reporting-contract.md); Java reporting is pending.
+Use these rules for Java/Spring Boot implementation and review. Current scope
+and verification live in [next-move.md](next-move.md). Read [security](security.md)
+before changing credentials, sessions, or CSRF, and use
+[the reporting contract](reporting-contract.md) for financial behavior.
 
 ## Selected patterns
 
@@ -59,9 +54,9 @@ Java worker/CLI -> application service -> provider/storage adapter
   such as `StatementExtractor`. Use fake implementations for offline experiments;
   keep provider SDK objects and transport errors inside the adapter.
 
-Package structure: identity, mfa, households, accounts, and shared are implemented,
-including household/account controllers. The diagram below also includes planned
-ledger/import/report packages, added as their workflows are built.
+The diagram includes target ledger/import/report packages; add them as their
+workflows are built. Use the source tree and [next-move.md](next-move.md) for
+current modules.
 
 ```text
 backend/src/main/java/com/expensetracker/
@@ -316,8 +311,7 @@ Add meaningful checks with implementation:
 - Frontend workflow: source review, field-error feedback, repeated confirmation,
   and household changes without stale private data.
 
-The session/account API is implemented; [next work](next-move.md) extends the
-ledger and extraction/evaluation loop. Implement shared formatters and their
+Follow [next work](next-move.md) for implementation order. Add shared formatters and their
 checks when the first Next.js workflow is introduced; configure strict
 TypeScript, lint import boundaries, and generate contracts as APIs become real.
 Do not create empty classes or placeholder layers to satisfy the pattern names.

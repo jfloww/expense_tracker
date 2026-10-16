@@ -1,8 +1,8 @@
 # Spending-change reporting contract
 
-Reporting is planned for Java; no reporting service or endpoint is currently
-implemented. This document preserves the behavior and synthetic example from
-the removed Python prototype. Its source and tests remain in Git history.
+This contract preserves the behavior and synthetic example from the removed
+Python prototype for Java reporting. Its source and tests remain in Git
+history. See [next-move.md](next-move.md) for implementation and verification.
 
 ## Inputs and exact calculations
 

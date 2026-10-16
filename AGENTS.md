@@ -14,7 +14,8 @@ household/account endpoints, Flyway, and public health. The Python scaffold and
 reporting prototype have been removed. Web uses Next.js;
 mobile reuses the Spring Boot API later. Capital One, Chase, and Amex are
 planned issuers. PDF extraction with OpenAI comes early, with a deterministic
-CSV baseline and Claude comparison later. No issuer parser or AI call exists yet.
+CSV baseline and Claude comparison later. Synthetic extraction/evaluation and an
+opt-in OpenAI adapter exist; no native issuer parser or verified live AI run yet.
 
 - Target authorization uses the actor's household membership and role. Never
   trust a client-supplied owner/household ID as authorization. Validate the scope

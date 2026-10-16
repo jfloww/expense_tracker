@@ -4,36 +4,16 @@ A statement-based expense tracker for households with accounts across several
 banks, built as a long-term AI engineering project. Upload statements, review
 extracted transactions, and understand where shared spending changed. The
 target product uses household memberships and roles, starts on the web, and
-adds a mobile app using the same API later. The backend uses **Java
-Spring Boot**. It implements browser authentication, optional Google login/MFA, household
-roles, and shared account APIs. The Django scaffold and Python reporting prototype were removed on
-2026-10-13; their source remains in Git history.
+adds a mobile app using the same API later. The backend uses **Java 21 and
+Spring Boot** with PostgreSQL; the web client uses Next.js and TypeScript.
 
 Initial issuer targets: **Capital One, Chase, and Amex**. Their actual export
-formats still need to be confirmed; no bank-specific parser is implemented.
+formats need private sample verification. See [next move](docs/next-move.md) for
+current capabilities, verification, limitations, and the immediate task.
 
-## What exists
-
-- A Java 21 / Spring Boot 4.1.1 backend with Maven Wrapper and PostgreSQL/Flyway.
-- Identity registration and authorized household/account application services,
-  household locks, last-owner protection, and PostgreSQL integration tests.
-- CSRF-protected signup/login/logout, password changes, persistent sessions,
-  TOTP/recovery-code MFA, optional Google login/linking, and authorized household/account HTTP endpoints.
-- A public `GET /api/v1/health/`; signup, login and CSRF bootstrap are also public.
-- A language-neutral reporting contract with synthetic spending-change examples
-  for the future Java reporting implementation.
-- A documented import pipeline, API plan, feature options, and implementation
-  milestones.
-- Reserved web, mobile, worker, shared-contract, and shared-utility directories.
-
-The web client, local-signup email verification/invitations/recovery, uploads, bank parsers,
-PDF extraction, review screens, dashboards, background jobs, AI calls, and
-deployment remain planned. Reporting and full ledger deletion are pending;
-authenticated account APIs do not constitute a finished expense tracker.
-
-Adopted on 2026-10-13: shared household ledger; PDF extraction with a CSV
-baseline; OpenAI first and Claude comparison later. Evaluation and tracing start
-with the first AI feature. Private accounts, receipts, and settle-up come later.
+The AI direction is PDF extraction with a CSV baseline, OpenAI first, and a
+Claude comparison later. AI proposes; Java validates and calculates money.
+Evaluation and tracing begin with the first experiment.
 
 ## Structure
 
@@ -52,18 +32,47 @@ expense-tracker/
     product.md            Product scope and distinctive feature options
     features-and-pages.md  Feature inventory, page placement, and navigation
     architecture.md       Boundaries, data model, and AI/RAG/MCP placement
-    backend-transition.md  Java transition status and legacy data-transfer policy
+    backend-transition.md  Java stack and legacy data-transfer policy
     engineering-conventions.md  Patterns, shared code, date/money contracts
     AI-Tech.md            Harness, RAG, MCP, and planned AI workflows
     imports.md            Issuer adapters, validation, review, deduplication
+    statement-schema.md   Proposed statement, source, review, and ledger tables
     api-plan.md           Intended authenticated API
     security.md           Browser login, MFA, sessions, and local setup
     roadmap.md            Milestones with acceptance criteria
-    next-move.md          Adopted decisions and immediate coding task
+    next-move.md          Current status, verification, and immediate coding task
     reporting-contract.md Required reporting behavior and synthetic examples
   AGENTS.md               Shared coding-agent instructions
   CLAUDE.md               Points Claude Code to the same instructions
 ```
+
+## Run the offline extraction experiment
+
+With Java 21, run from the repository root on Windows:
+
+```powershell
+.\tools\run-extraction-experiment.cmd
+```
+
+Pass an optional output directory as the first argument.
+
+On macOS/Linux:
+
+```sh
+sh tools/run-extraction-experiment.sh
+```
+
+The standalone CLI generates synthetic PDF/CSV fixtures, runs a deterministic
+CSV baseline and fake PDF provider, and scores their output. It writes immutable
+predictions, versioned labels, trace metadata, and evaluation JSONL under an
+ignored output directory. It requires no database, Spring application, API key,
+or network call. The fake provider tests the contract and scorer; its results do
+not measure real model extraction quality or native bank-format support.
+
+An opt-in [OpenAI PDF experiment](docs/openai-experiment.md) uses the same
+contract and scorer with generated synthetic inputs. It requires a configured
+API key, explicit model, and request/cost/time limits. Ordinary tests use only
+a loopback mock API; live model quality remains unmeasured until a paid run.
 
 ## Run the product backend
 
@@ -102,20 +111,9 @@ The retained SQLite file is ignored at `data/private/legacy-db.sqlite3`.
 Dated reviews use the former `apps/backend`/`apps/web` paths; those snapshots
 refer to the layout before the root-directory move.
 
-## Next milestone
-
-Extend the ledger graph, reporting, and safe deletion, and build the first
-Next.js workflow against the implemented authentication/account APIs. Use
-[the reporting contract](docs/reporting-contract.md) for exact totals, refunds,
-source references, and coverage requirements. In parallel, a synthetic Java CLI
-can establish the extraction contract, CSV baseline, and evaluation scoring
-without live AI.
-Then build PDF upload → OpenAI extraction → review/correction → versioned
-labels → evaluation score → confirmed monthly reporting.
-
 See [the product brief](docs/product.md), [architecture](docs/architecture.md),
 [features and pages](docs/features-and-pages.md),
 [engineering conventions](docs/engineering-conventions.md),
 [AI technology guide](docs/AI-Tech.md), and [roadmap](docs/roadmap.md) for the
-decisions and remaining work. [Next move](docs/next-move.md) is the concrete
-brief for the next implementation task.
+design and phase sequence. [Next move](docs/next-move.md) is the concrete brief
+and the source for current implementation status.

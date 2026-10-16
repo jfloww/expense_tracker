@@ -1,0 +1,91 @@
+name: Backend verification
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: backend-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: backend
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: expense_tracker_test
+          POSTGRES_USER: expense_tracker_test
+          POSTGRES_PASSWORD: synthetic-ci-password
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U expense_tracker_test -d expense_tracker_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      TEST_DATABASE_URL: jdbc:postgresql://127.0.0.1:5432/expense_tracker_test
+      TEST_DATABASE_USERNAME: expense_tracker_test
+      TEST_DATABASE_PASSWORD: synthetic-ci-password
+    steps:
+      - name: Check out source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set up Java 21 and Maven cache
+        uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+          cache-dependency-path: |
+            backend/pom.xml
+            backend/.mvn/wrapper/maven-wrapper.properties
+
+      - name: Verify unit and PostgreSQL integration tests
+        run: sh ./mvnw --batch-mode verify
+
+      - name: Run the offline extraction experiment
+        id: extraction
+        run: >-
+          java -cp target/classes
+          com.expensetracker.experiments.extraction.ExtractionExperiment
+          --output target/extraction-experiment
+
+      - name: Check packaged OpenAI CLI without API calls
+        run: >-
+          java -Dloader.main=com.expensetracker.experiments.extraction.openai.OpenAiExtractionExperiment
+          -cp target/backend-0.1.0-SNAPSHOT.jar
+          org.springframework.boot.loader.launch.PropertiesLauncher --help
+
+      - name: Retain failure reports
+        if: ${{ failure() }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: backend-failure-reports
+          path: |
+            backend/target/surefire-reports/
+            backend/target/failsafe-reports/
+          if-no-files-found: ignore
+          retention-days: 7
+
+      - name: Retain synthetic experiment results
+        if: ${{ !cancelled() && (steps.extraction.outcome == 'success' || steps.extraction.outcome == 'failure') }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: offline-extraction-experiment
+          path: backend/target/extraction-experiment/
+          if-no-files-found: warn
+          retention-days: 7

@@ -14,8 +14,8 @@ session version and household membership govern access; the last owner is protec
 
 See [security and client flow](../docs/security.md) for exact routes and
 required configuration. Google is disabled unless explicitly configured. The
-web UI, local-signup email verification/invitations/recovery,
-statement imports, reports, full household deletion, and AI calls remain pending.
+current implementation status and verification results live in
+[next-move.md](../docs/next-move.md).
 
 ## Structure
 
@@ -26,6 +26,7 @@ src/main/java/com/expensetracker/
   mfa/            TOTP, encrypted enrollment, hashed recovery codes
   households/     HTTP API, membership, roles, access locks, write/query services
   accounts/       HTTP API, commands/views, bank/card domain, write/query services
+  experiments/extraction/  Standalone synthetic extraction/evaluation CLI
   shared/         Health HTTP controller, errors, security configuration
 src/main/resources/
   application.yml
@@ -133,17 +134,12 @@ rollback, real HTTP CSRF/fixation/login/MFA behavior, persistent opaque sessions
 password/version revocation, and durable authentication-limit races. Tests
 supply a synthetic MFA encryption key; no provider key or private statement is needed.
 
-Verified on 2026-10-14 from `backend/` with Java 21: Maven Wrapper `verify`
-passed 36 unit and 88 PostgreSQL integration tests (124 total), with no
-failures, errors or skips. The isolated external database used PostgreSQL 16.4;
-Docker/Testcontainers execution was not exercised. Google tests used a signed
-loopback mock provider, with no real Google calls or credentials. See
-[implementation and verification note](../codex/2026-10-14-security-backend.md).
-The earlier 2026-10-13 result of 22 unit and 31 integration tests describes
-the bootstrap before the authentication/MFA/API extension.
+See [current verification evidence](../docs/next-move.md) for the last recorded
+run and its limits. Dated implementation notes retain historical findings.
 
 The Python/Django scaffold and reporting prototype were removed on 2026-10-13.
 [The reporting contract](../docs/reporting-contract.md) preserves their
 calculation requirements for the future Java implementation. The
 [transition policy](../docs/backend-transition.md) preserves existing data.
-The next slice is [the ledger graph, reporting and extraction experiment](../docs/next-move.md).
+See [the immediate task](../docs/next-move.md) and the root README for the
+standalone extraction experiment commands.

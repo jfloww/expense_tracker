@@ -5,8 +5,8 @@ move adopted decisions into `docs/`.
 
 | # | Decision | Options | Claude's recommendation | What it blocks |
 | --- | --- | --- | --- | --- |
-| 4 | First bank | Capital One, Chase, Amex | Whichever you have real statements for. They are needed for a realistic golden set | Golden dataset |
-| 5 | Tracing and eval tooling | Build a minimal version yourself (JSONL/SQL), or use an existing tool (e.g. Langfuse, or something OpenTelemetry-based) | Build a minimal version in Phase 1, then adopt a tool in Phase 7 and compare the two | Phase 1 |
+| 4 | First bank format to verify | Capital One, Chase, Amex | Inspect an available statement privately, then build synthetic fixtures for its format | Issuer-specific validation, not the synthetic experiment |
+| 5 | Long-term tracing and eval tooling | Keep minimal JSONL, or integrate a dedicated tracing/eval tool | Start with JSONL; compare a tool when operational needs justify it | Later tracing integration |
 
 ## Decided
 
@@ -25,14 +25,10 @@ product/architecture/AI docs:
 
 Initial implementation defaults use owner/member roles. `paid_by` remains an
 optional later attribution choice rather than a blocker for the household
-foundation. The Java implementation starts with household ownership in its
-first Flyway schema. The Python/Django source was removed at the user's request;
-existing data is preserved under [backend transition](../docs/backend-transition.md).
-Java authentication/MFA, persistent sessions, and household/account APIs are
-implemented. Optional Google login/linking is implemented but disabled until
-configured; see [security](../docs/security.md). The client, imports, reporting
-and AI extraction remain pending. The dated
-review files remain snapshots; removed source is available in Git history at
-commit `75a0680`.
+foundation. Preserve existing data under
+[backend transition](../docs/backend-transition.md). Current implementation,
+verification, and next work live in [next-move.md](../docs/next-move.md).
+The dated review files remain snapshots; removed source is available in Git
+history at commit `75a0680`.
 Current code lives in root `backend/` and `frontend/`; `apps/` paths in dated
 reviews refer to the earlier layout preserved in Git history.

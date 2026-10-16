@@ -5,8 +5,8 @@ the shared household tracker; it does not implement UI, APIs, or imports.
 The user confirmed both original statement downloads and transaction CSV
 exports. Other page placement and priorities below are recommendations for
 discussion. Existing ownership, review, money, and reporting rules still apply.
-Next.js remains the web client; the selected backend is Java Spring Boot. The
-Python/Django scaffold and reporting prototype were removed on 2026-10-13.
+Next.js is the web client; the backend is Java Spring Boot. Current
+implementation and verification live in [next-move.md](next-move.md).
 
 ## 1. Define the capabilities
 

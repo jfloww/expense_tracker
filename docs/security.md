@@ -1,10 +1,8 @@
 # Browser authentication, MFA and sessions
 
-The backend implements authentication, optional Google OpenID Connect, and
-household/account APIs. The frontend, local-signup email verification,
-invitations, email/password recovery delivery, passkeys,
-uploads, reporting, and complete ledger deletion remain pending. These APIs
-are a backend slice, not a finished expense tracker.
+This document defines the browser authentication, Google OpenID Connect,
+MFA, and session contract. See [next-move.md](next-move.md) for current
+implementation scope and verification evidence.
 
 ## Run and key configuration
 
@@ -159,8 +157,6 @@ operation still checks current membership and related-object scope. See
 [implemented routes and planned endpoints](api-plan.md) and
 [the next work](next-move.md).
 
-Verification on 2026-10-14: Java 21 Maven `verify` passed 36 unit and 88 real
-PostgreSQL integration tests (124 total), with no failures, errors or skips.
-The run used an isolated PostgreSQL 16.4 database and signed loopback Google
-provider; Docker/Testcontainers and live Google were not exercised. See
-[the implementation note](../codex/2026-10-14-security-backend.md).
+Recorded verification and its limits live in [next-move.md](next-move.md).
+See [the dated implementation note](../codex/2026-10-14-security-backend.md)
+for security decisions and findings.
